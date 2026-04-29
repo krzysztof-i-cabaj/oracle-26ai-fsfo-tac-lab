@@ -1,0 +1,78 @@
+# ==============================================================================
+# Tytul:        dgmgrl-observer-dr.service
+# Opis:         systemd unit dla BACKUP Observer FSFO w osrodku DR (standby site).
+# Description [EN]: systemd unit for BACKUP FSFO Observer in DR site (standby site).
+#
+# Autor:        KCB Kris
+# Data:         2026-04-23
+# Wersja:       1.0
+#
+# Wymagania [PL]:    - RHEL/OL 7+ z systemd
+#                    - Oracle Client 19c+ (dgmgrl w PATH)
+#                    - Wallet w /etc/oracle/wallet/observer-dr
+#                    - TNS_ADMIN=/etc/oracle/tns/dr z aliasami PRIM_ADMIN, STBY_ADMIN
+#                    - Observer registered w brokerze: ADD OBSERVER 'obs_dr' ON '<host>'
+# Requirements [EN]: - RHEL/OL 7+ with systemd
+#                    - Oracle Client 19c+ (dgmgrl in PATH)
+#                    - Wallet at /etc/oracle/wallet/observer-dr
+#                    - TNS_ADMIN=/etc/oracle/tns/dr with aliases PRIM_ADMIN, STBY_ADMIN
+#
+# Uzycie / Usage:
+#   sudo cp dgmgrl-observer-dr.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable dgmgrl-observer-dr
+#   sudo systemctl start dgmgrl-observer-dr
+# ==============================================================================
+
+[Unit]
+Description=Data Guard Observer (obs_dr — BACKUP) for FSFO — DR site
+Documentation=file:///opt/dba/20260423-FSFO-TAC-guide/FSFO-GUIDE.md
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=oracle
+Group=oinstall
+
+Environment=ORACLE_HOME=/u01/app/oracle/product/19.0.0/dbhome_1
+Environment=TNS_ADMIN=/etc/oracle/tns/dr
+Environment=LD_LIBRARY_PATH=/u01/app/oracle/product/19.0.0/dbhome_1/lib
+Environment=NLS_LANG=AMERICAN_AMERICA.AL32UTF8
+Environment=TZ=Europe/Warsaw
+
+WorkingDirectory=/var/log/oracle/observer
+
+ExecStart=/u01/app/oracle/product/19.0.0/dbhome_1/bin/dgmgrl \
+    -echo \
+    -logfile /var/log/oracle/observer/obs_dr_startup.log \
+    /@PRIM_ADMIN \
+    "START OBSERVER obs_dr IN BACKGROUND FILE='/var/log/oracle/observer/obs_dr.dat' LOGFILE='/var/log/oracle/observer/obs_dr.log'"
+
+ExecStop=/u01/app/oracle/product/19.0.0/dbhome_1/bin/dgmgrl \
+    -echo \
+    /@PRIM_ADMIN \
+    "STOP OBSERVER obs_dr"
+
+Restart=on-failure
+RestartSec=30s
+TimeoutStartSec=60s
+TimeoutStopSec=30s
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=dgmgrl-observer-dr
+
+PrivateTmp=true
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/var/log/oracle /u01/app/oracle
+ProtectHome=true
+
+LimitNOFILE=65536
+LimitNPROC=16384
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,14 @@
+# ==============================================================================
+# targets.lst — lista baz do multi-DB validation (bash/validate_all.sh)
+# Format: jedna baza w linii; linie zaczynajace sie od # sa pomijane
+# Format: one DB per line; lines starting with # are ignored
+# ==============================================================================
+
+# === Produkcja FSFO 3-site ===
+PRIM
+STBY
+
+# === Inne bazy (zakomentowane domyslnie) ===
+# crm_prod
+# hr_prod
+# billing_prod

@@ -1,0 +1,88 @@
+# ==============================================================================
+# Tytul:        dbca_prim.rsp — DBCA create CDB PRIM + PDB APPPDB (RAC, ASM)
+# Wersja:       2.0 (VMs2-install)
+# ==============================================================================
+
+responseFileVersion=/oracle/assistants/rspfmt_dbca_response_schema_v23.0.0
+
+gdbName=PRIM.lab.local
+sid=PRIM
+databaseConfigType=RAC
+RACOneNodeServiceName=
+
+policyManaged=false
+managementPolicy=AUTOMATIC
+createServerPool=
+serverPoolName=
+cardinality=
+force=
+pqPoolName=
+pqCardinality=
+
+createAsContainerDatabase=true
+numberOfPDBs=1
+pdbName=APPPDB
+useLocalUndoForPDBs=true
+pdbAdminPassword=Oracle26ai_LAB!
+
+nodelist=prim01,prim02
+
+# F-24 / FIX-030: New_Database.dbt zamiast General_Purpose.dbc - controlfile
+# version mismatch w 26ai 23.26.1 (seed 23.6.0.0.0 vs baseline 23.4.0.0.0 daje ORA-00201).
+# F-24 / FIX-030: New_Database.dbt instead of General_Purpose.dbc - 26ai controlfile
+# version mismatch (seed vs baseline) causes ORA-00201 with prebuilt template.
+templateName=New_Database.dbt
+
+sysPassword=Oracle26ai_LAB!
+systemPassword=Oracle26ai_LAB!
+oracleHomeUserPassword=
+
+emConfiguration=NONE
+runCVUChecks=FALSE
+dbsnmpPassword=
+omsHost=
+omsPort=
+emUser=
+emPassword=
+
+dvConfiguration=
+dvUserName=
+dvUserPassword=
+dvAccountManagerName=
+dvAccountManagerPassword=
+olsConfiguration=
+
+datafileJarLocation=
+datafileDestination=+DATA
+recoveryAreaDestination=+RECO
+storageType=ASM
+diskGroupName=
+asmsnmpPassword=Oracle26ai_LAB!
+recoveryGroupName=+RECO
+
+characterSet=AL32UTF8
+nationalCharacterSet=AL16UTF16
+
+registerWithDirService=false
+dirServiceUserName=
+dirServicePassword=
+walletPassword=
+
+listeners=
+variablesFile=
+variables=
+
+# F-08:  jawny db_domain=lab.local - synchronizacja z DNS bind9 na infra01,
+#        unika niedeterministycznego dziedziczenia z /etc/resolv.conf.
+# F-18.B: use_large_pages=ONLY + lock_sga=TRUE wymuszaja alokacje SGA na HugePages
+#        (sysctl vm.nr_hugepages=2200 ustawiony w kickstart).
+# F-14:  compatible=23.4.0 (linia bazowa 23ai/26ai). Po stabilizacji srodowiska
+#        rozwaz podniesienie do 23.26.0 (decyzja jednokierunkowa).
+# F-08/18.B/14: db_domain explicit, HugePages forced, compatible at 23ai baseline.
+initParams=db_block_size=8192,processes=300,sessions=500,cursor_sharing=EXACT,open_cursors=300,compatible=23.4.0,db_domain=lab.local,use_large_pages=ONLY,lock_sga=TRUE,diagnostic_dest=/u01/app/oracle,db_recovery_file_dest_size=14G
+
+sampleSchema=false
+memoryPercentage=
+databaseType=MULTIPURPOSE
+automaticMemoryManagement=false
+totalMemory=2048

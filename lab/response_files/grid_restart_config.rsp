@@ -1,0 +1,52 @@
+# ==============================================================================
+# Tytul:        grid_restart_config.rsp - konfiguracja Oracle Restart po CRS_SWONLY
+# Opis:         Response file dla fazy -executeConfigTools na stby01 (Standalone Server)
+# Wersja:       1.0 (dla VMs2-install)
+#
+# !! NIE UŻYWAĆ !! PODEJŚCIE NIEDZIAŁAJĄCE W Oracle GI 23.26.1 !!
+# !! DO NOT USE !! THIS APPROACH FAILS IN Oracle GI 23.26.1    !!
+#
+# HISTORIA [PL]: Próba uruchomienia -executeConfigTools z installOption=HA_CONFIG
+#   po CRS_SWONLY + root.sh zakończyła się błędem:
+#   "privileged user configuration not completed"
+#   Installer oczekuje root.sh w kontekście HA_CONFIG, nie CRS_SWONLY.
+#
+# POPRAWNA METODA [PL]: Po CRS_SWONLY + root.sh uruchom roothas.pl jako root:
+#   /u01/app/23.26/grid/perl/bin/perl \
+#       -I /u01/app/23.26/grid/perl/lib \
+#       -I /u01/app/23.26/grid/crs/install \
+#       /u01/app/23.26/grid/crs/install/roothas.pl
+#   Oczekiwane: CLSRSC-327: Successfully configured Oracle Restart for a standalone server
+#
+# HISTORY [EN]: Attempt to run -executeConfigTools with installOption=HA_CONFIG
+#   after CRS_SWONLY + root.sh failed with:
+#   "privileged user configuration not completed"
+#   Installer expects root.sh to have been run in HA_CONFIG context, not CRS_SWONLY.
+#
+# CORRECT METHOD [EN]: After CRS_SWONLY + root.sh run roothas.pl as root (see above).
+# ==============================================================================
+
+oracle.install.responseFileVersion=/oracle/install/rspfmt_crsinstall_response_schema_v23.0.0
+
+INVENTORY_LOCATION=/u01/app/oraInventory
+
+# HA_CONFIG: konfiguruje Oracle High Availability Services (Oracle Restart)
+installOption=HA_CONFIG
+
+ORACLE_BASE=/u01/app/grid
+
+# STANDALONE: Oracle Restart (nie klaster)
+oracle.install.crs.config.ClusterConfiguration=STANDALONE
+
+# Plikowy OCR (bez ASM) — katalog tworzony przez kickstart
+oracle.install.crs.config.storageOption=FILE_SYSTEM_STORAGE
+oracle.install.crs.config.fileSystemStorage.ocrLocations=/u01/app/grid/oradata/CSS
+
+OSDBA=asmdba
+OSOPER=asmoper
+OSASM=asmadmin
+
+managementOption=NONE
+
+executeRootScript=false
+enableAutoFixup=false

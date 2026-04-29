@@ -1,0 +1,27 @@
+# ==============================================================================
+# Tytul:        client.rsp - Oracle Database Client 23.26.1 silent install
+# Opis:         Response file dla instalatora klienta (wymagane m.in. dla DGMGRL Observer)
+# Description [EN]: Response file for Oracle Client silent install (used by DGMGRL Observer).
+#
+# Autor:        KCB Kris
+# Data:         2026-04-29
+# Wersja:       2.2 (VMs2-install) - rollback F-23: schema v23.0.0 jest strict (FIX-070)
+#
+# Tested with:  Oracle Database 23.26.1 (Oracle 26ai)
+# Schema:       rspfmt_clientinstall_response_schema_v23.0.0
+#
+# UWAGA / NOTE: Schema 23.0.0 jest STRICT — przyjmuje wylacznie klucze z listy ponizej.
+# Dodanie 'oracle.install.option' lub 'oracle.install.client.rootconfig.executeRootScript'
+# (klucze z DB schema, nie Client) -> INS-10105 cvc-complex-type. Patrz VMs/FIXES_LOG FIX-070.
+# ==============================================================================
+oracle.install.responseFileVersion=/oracle/install/rspfmt_clientinstall_response_schema_v23.0.0
+
+# Konto OS i grupy.
+UNIX_GROUP_NAME=oinstall
+INVENTORY_LOCATION=/u01/app/oraInventory
+ORACLE_HOME=/u01/app/oracle/product/23.26/client_1
+ORACLE_BASE=/u01/app/oracle
+
+# Typ instalacji: Administrator (zawiera mkstore, dgmgrl, sqlplus, tnsping).
+# Alternatywy: InstantClient | Runtime | Custom.
+oracle.install.client.installType=Administrator

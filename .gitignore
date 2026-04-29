@@ -1,0 +1,90 @@
+# ==============================================================================
+# .gitignore — Oracle 26ai MAA Lab — FSFO + TAC (Reference Implementation)
+# ==============================================================================
+
+# --- Claude Code / AI assistant (lokalne ustawienia) ---
+.claude/settings.local.json
+.claude/cache/
+.claude/tmp/
+.aider*
+.cursor/
+.idea/
+.vscode/
+
+# --- Runtime: tworzone przez bash/*.sh podczas setup/monitor/deploy ---
+reports/
+logs/
+tmp/
+*.log
+*.err
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# --- Lab runtime artefacts (jeśli ktoś sklonuje i uruchomi VMs2-install) ---
+lab/scripts/*.log
+lab/AUTONOMOUS_ACCESS_LOG_*.bak
+lab/temp/
+lab/.tmp/
+lab/.claude/
+
+# --- Wygenerowane artefakty dgmgrl / srvctl (reports/) ---
+*.dgmgrl
+broker_setup_*.dgmgrl
+tac_srvctl_*.sh
+fsfo_setup_*.log
+tac_deploy_*.log
+*_readiness_*.txt
+*_fsfo_monitor_*.txt
+*_validation_*.txt
+FULL_VALIDATION_*.txt
+
+# --- Oracle Wallet i credentiale (NIGDY w repo) ---
+wallet/
+*.sso
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.truststore
+orapw*
+ewallet.*
+cwallet.*
+.db_secrets
+.env
+.env.local
+.env.*.local
+
+# --- Oracle runtime / dumps ---
+*.trc
+*.trm
+alert_*.log
+core.*
+cdmp_*/
+lst*.pid
+
+# --- Systemowe / OS ---
+.DS_Store
+Thumbs.db
+desktop.ini
+*~
+.*.swp
+
+# --- Archiwa / backupy ---
+*.tar
+*.tar.gz
+*.zip
+*.7z
+*.rar
+
+# --- Python / Node / Java build artifacts ---
+__pycache__/
+*.pyc
+.venv/
+venv/
+node_modules/
+dist/
+build/
+target/
+*.class

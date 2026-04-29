@@ -1,0 +1,93 @@
+# ==============================================================================
+# Tytul:        dgmgrl-observer-ext.service
+# Opis:         systemd unit dla MASTER Observer FSFO w osrodku EXT (third site).
+# Description [EN]: systemd unit for MASTER FSFO Observer in EXT site (third site).
+#
+# Autor:        KCB Kris
+# Data:         2026-04-23
+# Wersja:       1.0
+#
+# Wymagania [PL]:    - RHEL/OL 7+ z systemd
+#                    - Oracle Client 19c+ (dgmgrl w PATH)
+#                    - Wallet w /etc/oracle/wallet/observer-ext
+#                    - TNS_ADMIN=/etc/oracle/tns/ext z aliasami PRIM_ADMIN, STBY_ADMIN
+#                    - Observer registered w brokerze: ADD OBSERVER 'obs_ext' ON '<host>'
+# Requirements [EN]: - RHEL/OL 7+ with systemd
+#                    - Oracle Client 19c+ (dgmgrl in PATH)
+#                    - Wallet at /etc/oracle/wallet/observer-ext
+#                    - TNS_ADMIN=/etc/oracle/tns/ext with aliases PRIM_ADMIN, STBY_ADMIN
+#                    - Observer registered in broker: ADD OBSERVER 'obs_ext' ON '<host>'
+#
+# Uzycie / Usage:
+#   sudo cp dgmgrl-observer-ext.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable dgmgrl-observer-ext
+#   sudo systemctl start dgmgrl-observer-ext
+#   sudo systemctl status dgmgrl-observer-ext
+#   sudo journalctl -u dgmgrl-observer-ext -f
+# ==============================================================================
+
+[Unit]
+Description=Data Guard Observer (obs_ext — MASTER) for FSFO — EXT site
+Documentation=file:///opt/dba/20260423-FSFO-TAC-guide/FSFO-GUIDE.md
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=oracle
+Group=oinstall
+
+# === Srodowisko Oracle / Oracle environment ===
+Environment=ORACLE_HOME=/u01/app/oracle/product/19.0.0/dbhome_1
+Environment=TNS_ADMIN=/etc/oracle/tns/ext
+Environment=LD_LIBRARY_PATH=/u01/app/oracle/product/19.0.0/dbhome_1/lib
+Environment=NLS_LANG=AMERICAN_AMERICA.AL32UTF8
+Environment=TZ=Europe/Warsaw
+
+# === Katalog roboczy observera ===
+WorkingDirectory=/var/log/oracle/observer
+
+# === Start: dgmgrl w tle z nazwa observera i plikiem persist ===
+# UWAGA: Observer musi byc wczesniej zarejestrowany w brokerze komenda:
+#   ADD OBSERVER 'obs_ext' ON '<this_host_fqdn>'
+#     LOG FILE IS '/var/log/oracle/observer/obs_ext.log';
+# A potem: SET MASTEROBSERVER TO obs_ext;
+ExecStart=/u01/app/oracle/product/19.0.0/dbhome_1/bin/dgmgrl \
+    -echo \
+    -logfile /var/log/oracle/observer/obs_ext_startup.log \
+    /@PRIM_ADMIN \
+    "START OBSERVER obs_ext IN BACKGROUND FILE='/var/log/oracle/observer/obs_ext.dat' LOGFILE='/var/log/oracle/observer/obs_ext.log'"
+
+# === Stop: graceful shutdown observera ===
+ExecStop=/u01/app/oracle/product/19.0.0/dbhome_1/bin/dgmgrl \
+    -echo \
+    /@PRIM_ADMIN \
+    "STOP OBSERVER obs_ext"
+
+# === Restart policy ===
+Restart=on-failure
+RestartSec=30s
+TimeoutStartSec=60s
+TimeoutStopSec=30s
+
+# === Logging ===
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=dgmgrl-observer-ext
+
+# === Security hardening ===
+PrivateTmp=true
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/var/log/oracle /u01/app/oracle
+ProtectHome=true
+
+# === Resource limits ===
+LimitNOFILE=65536
+LimitNPROC=16384
+
+[Install]
+WantedBy=multi-user.target

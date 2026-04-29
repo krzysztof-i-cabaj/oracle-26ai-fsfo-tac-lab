@@ -1,0 +1,87 @@
+# ==============================================================================
+# Tytul:        grid_rac.rsp - Oracle Grid Infrastructure 23.26.1 silent install
+# Opis:         Response file dla 2-node RAC: prim01 + prim02
+# Wersja:       2.0 (dla VMs2-install)
+# ==============================================================================
+
+oracle.install.responseFileVersion=/oracle/install/rspfmt_crsinstall_response_schema_v23.0.0
+
+INVENTORY_LOCATION=/u01/app/oraInventory
+installOption=CRS_CONFIG
+ORACLE_BASE=/u01/app/grid
+clusterUsage=RAC
+zeroDowntimeGIPatching=false
+skipDriverUpdate=false
+
+OSDBA=asmdba
+OSOPER=asmoper
+OSASM=asmadmin
+
+scanType=LOCAL_SCAN
+scanClientDataFile=
+scanName=scan-prim.lab.local
+scanPort=1521
+
+configureAsExtendedCluster=false
+clusterName=rac-prim
+configureGNS=false
+configureDHCPAssignedVIPs=false
+gnsSubDomain=
+gnsVIPAddress=
+sites=
+
+# Lista wezlow (prim01 i prim02)
+clusterNodes=prim01.lab.local:prim01-vip.lab.local,prim02.lab.local:prim02-vip.lab.local
+
+# Interfejsy
+networkInterfaceList=enp0s3:192.168.56.0:1,enp0s8:192.168.100.0:5,enp0s9:192.168.200.0:4
+
+storageOption=FLEX_ASM_STORAGE
+votingFilesLocations=
+ocrLocations=
+clientDataFile=
+
+useIPMI=false
+bmcBinpath=
+bmcUsername=
+bmcPassword=
+
+# Haslo sysasm (zunifikowane z LABem, z uwzglednieniem min. restrykcji)
+# ASM wymaga wielkich/malych liter, cyfr. Oracle26ai_LAB! spelnia to.
+sysasmPassword=Oracle26ai_LAB!
+
+diskGroupName=OCR
+redundancy=NORMAL
+auSize=4
+failureGroups=
+disksWithFailureGroupNames=
+diskList=/dev/oracleasm/OCR1,/dev/oracleasm/OCR2,/dev/oracleasm/OCR3
+quorumFailureGroupNames=
+diskString=/dev/oracleasm/*
+
+asmsnmpPassword=Oracle26ai_LAB!
+
+ignoreDownNodes=
+configureBackupDG=false
+backupDGName=
+backupDGRedundancy=
+backupDGAUSize=
+backupDGFailureGroups=
+backupDGDisksWithFailureGroupNames=
+backupDGDiskList=
+backupDGQuorumFailureGroups=
+
+managementOption=NONE
+omsHost=
+omsPort=
+emAdminUser=
+emAdminPassword=
+
+executeRootScript=false
+configMethod=
+sudoPath=
+sudoUserName=
+batchInfo=
+
+nodesToDelete=
+enableAutoFixup=false

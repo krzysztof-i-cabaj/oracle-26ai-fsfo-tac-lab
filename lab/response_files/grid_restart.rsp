@@ -1,0 +1,39 @@
+# ==============================================================================
+# Tytul:        grid_restart.rsp - Oracle Grid Infrastructure 23.26.1 silent install
+# Opis:         Response file dla Oracle Restart (Standalone Server): stby01
+# Wersja:       3.0 (dla VMs2-install)
+#
+# UWAGA [PL]: installOption=CRS_SWONLY zamiast HA_CONFIG.
+#   W Oracle GI 23.26.1 HA_CONFIG z FILE_SYSTEM_STORAGE zawsze rzuca INS-30507
+#   (installer ignoruje storageOption i wymaga dysków ASM).
+#   CRS_SWONLY pomija walidację storage. Po instalacji:
+#     1. root.sh — TYLKO bazowe OS setup (oraenv, /etc/oratab); NIE konfiguruje OHAS.
+#     2. roothas.pl — konfiguruje OHAS + lokalny CSS z plikowym OCR.
+#   Pełna procedura: install_grid_silent.sh → root.sh → roothas.pl
+#
+# NOTE [EN]: installOption=CRS_SWONLY instead of HA_CONFIG.
+#   In Oracle GI 23.26.1, HA_CONFIG with FILE_SYSTEM_STORAGE always throws
+#   INS-30507 (installer ignores storageOption and requires ASM disks).
+#   CRS_SWONLY skips storage validation. After install:
+#     1. root.sh — ONLY basic OS setup (oraenv, /etc/oratab); does NOT configure OHAS.
+#     2. roothas.pl — configures OHAS + local CSS with file-based OCR.
+#   Full procedure: install_grid_silent.sh → root.sh → roothas.pl
+# ==============================================================================
+
+oracle.install.responseFileVersion=/oracle/install/rspfmt_crsinstall_response_schema_v23.0.0
+
+INVENTORY_LOCATION=/u01/app/oraInventory
+
+# CRS_SWONLY: rejestruje GI home bez konfiguracji storage.
+# Konfiguracja OHAS/CSS wykonywana przez root.sh (lokalny filesystem).
+installOption=CRS_SWONLY
+ORACLE_BASE=/u01/app/grid
+
+OSDBA=asmdba
+OSOPER=asmoper
+OSASM=asmadmin
+
+managementOption=NONE
+
+executeRootScript=false
+enableAutoFixup=false

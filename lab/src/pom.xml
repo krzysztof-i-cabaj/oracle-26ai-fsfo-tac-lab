@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ==============================================================================
+  Tytul:        pom.xml (TestHarness UCP + TAC client dla Oracle 26ai)
+  Opis:         Maven build dla TestHarness.java z pinningiem ojdbc11 / ucp11 23.5+.
+                Pin'y wersji JDBC zsynchronizowane z RU 23.26.1 (Oracle 26ai).
+  Description [EN]: Maven build with ojdbc11 / ucp11 23.5+ pinned to match RU 23.26.1.
+
+  Autor:        KCB Kris
+  Data:         2026-04-27
+  Wersja:       1.0 (VMs2-install) - F-09 / F-23 (formalizacja zaleznosci klienta)
+
+  Uzycie [PL]:  cd <repo>/src && mvn -DskipTests package
+                # produkuje target/test-harness-1.0.jar (z dependencies w lib/)
+                # alternatywa: mvn dependency:copy-dependencies (jary w target/dependency)
+
+  Uruchomienie po build:
+    APP_PASSWORD='...' java \\
+      --add-opens=java.base/java.lang=ALL-UNNAMED \\
+      --add-opens=java.base/java.util=ALL-UNNAMED \\
+      --add-opens=java.base/jdk.internal.misc=ALL-UNNAMED \\
+      --add-opens=java.base/sun.nio.ch=ALL-UNNAMED \\
+      -cp 'target/test-harness-1.0.jar:target/dependency/*' TestHarness
+  ==============================================================================
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>local.lab</groupId>
+    <artifactId>test-harness</artifactId>
+    <version>1.0</version>
+    <packaging>jar</packaging>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- F-09: pin pod Oracle 23ai/26ai. -->
+        <oracle.jdbc.version>23.5.0.24.07</oracle.jdbc.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.oracle.database.jdbc</groupId>
+            <artifactId>ojdbc11</artifactId>
+            <version>${oracle.jdbc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.oracle.database.jdbc</groupId>
+            <artifactId>ucp11</artifactId>
+            <version>${oracle.jdbc.version}</version>
+        </dependency>
+        <!-- ONS + simplefan dla FAN events. -->
+        <dependency>
+            <groupId>com.oracle.database.jdbc</groupId>
+            <artifactId>ons</artifactId>
+            <version>${oracle.jdbc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.oracle.database.jdbc</groupId>
+            <artifactId>simplefan</artifactId>
+            <version>${oracle.jdbc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.oracle.database.security</groupId>
+            <artifactId>oraclepki</artifactId>
+            <version>${oracle.jdbc.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <sourceDirectory>${project.basedir}</sourceDirectory>
+        <plugins>
+            <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-deps</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/dependency</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

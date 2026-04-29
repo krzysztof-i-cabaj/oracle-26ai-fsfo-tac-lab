@@ -1,0 +1,39 @@
+# ==============================================================================
+# Tytul:        db_stby.rsp - Oracle Database 23.26.1 (Oracle 26ai) silent install
+# Opis:         Response file dla instalacji samego oprogramowania bazy (Software Only)
+#               na węźle stby01 (Standalone Server / Oracle Restart).
+# Description [EN]: Response file for DB Software Only install on stby01
+#               (Standalone Server / Oracle Restart).
+# Wersja:       1.0 (VMs2-install)
+#
+# UWAGA [PL]: Różnica vs db.rsp (RAC):
+#   - CLUSTER_NODES jest PUSTE — stby01 to Standalone, nie klaster RAC.
+#     Z wypełnionym CLUSTER_NODES installer próbuje rejestrować home w CRS RAC
+#     i kończy błędem braku konfiguracji klastra.
+#
+# NOTE [EN]: Difference vs db.rsp (RAC):
+#   - CLUSTER_NODES is EMPTY — stby01 is Standalone, not a RAC cluster.
+#     With CLUSTER_NODES set, the installer tries to register home in RAC CRS
+#     and fails with cluster configuration errors.
+# ==============================================================================
+
+oracle.install.responseFileVersion=/oracle/install/rspfmt_dbinstall_response_schema_v23.0.0
+oracle.install.option=INSTALL_DB_SWONLY
+UNIX_GROUP_NAME=oinstall
+INVENTORY_LOCATION=/u01/app/oraInventory
+ORACLE_BASE=/u01/app/oracle
+oracle.install.db.InstallEdition=EE
+oracle.install.db.OSDBA_GROUP=dba
+oracle.install.db.OSOPER_GROUP=oper
+oracle.install.db.OSBACKUPDBA_GROUP=backupdba
+oracle.install.db.OSDGDBA_GROUP=dgdba
+oracle.install.db.OSKMDBA_GROUP=kmdba
+oracle.install.db.OSRACDBA_GROUP=racdba
+oracle.install.db.rootconfig.executeRootScript=false
+oracle.install.db.rootconfig.configMethod=
+oracle.install.db.rootconfig.sudoPath=
+oracle.install.db.rootconfig.sudoUserName=
+# Standalone Server (Oracle Restart) — bez węzłów klastra RAC
+oracle.install.db.CLUSTER_NODES=
+oracle.install.db.isRACOneInstall=false
+oracle.install.db.racOneServiceName=
