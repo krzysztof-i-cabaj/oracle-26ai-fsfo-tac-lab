@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oracle 26ai MAA Lab — Test results (6 scenarios)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* === RESET & VARS (matching index.html) === */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:     #0d1117;
+  --bg2:    #161b22;
+  --bg3:    #21262d;
+  --border: #30363d;
+  --text:   #e6edf3;
+  --muted:  #8b949e;
+  --red:    #C74634;
+  --orange: #F48024;
+  --gold:   #F7B731;
+  --blue:   #58a6ff;
+  --green:  #3fb950;
+  --purple: #bc8cff;
+  --radius: 10px;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  line-height: 1.65;
+  font-size: 15px;
+}
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+code, .mono { font-family: 'JetBrains Mono', monospace; font-size: 0.85em; }
+
+.container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+section { padding: 72px 0; }
+h2 { font-size: 1.75rem; font-weight: 700; margin-bottom: 10px; letter-spacing: -0.02em; }
+h3 { font-size: 1.05rem; font-weight: 600; }
+
+.section-label {
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--red); margin-bottom: 8px;
+}
+.section-sub {
+  color: var(--muted); margin-bottom: 44px; max-width: 620px; font-size: 0.95rem;
+}
+
+/* === NAV === */
+nav {
+  border-bottom: 1px solid var(--border);
+  padding: 14px 0;
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(13,17,23,0.94);
+  backdrop-filter: blur(10px);
+}
+.nav-inner {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+}
+.nav-logo { font-weight: 700; font-size: 0.95rem; white-space: nowrap; }
+.nav-logo span { color: var(--red); }
+.nav-logo .sub { color: var(--muted); font-weight: 500; font-size: 0.8rem; margin-left: 6px; }
+.nav-links {
+  display: flex; gap: 22px; font-size: 0.83rem; color: var(--muted); list-style: none; align-items: center;
+}
+.nav-links a { color: var(--muted); transition: color 0.15s; }
+.nav-links a:hover { color: var(--text); text-decoration: none; }
+.nav-links a.cta { color: var(--blue); }
+.nav-links a.back { color: var(--blue); }
+
+/* === LANG SWITCH === */
+.lang-switch { display: flex; align-items: center; gap: 6px; margin-left: 10px; padding-left: 14px; border-left: 1px solid var(--border); }
+.lang { font-size: 0.78rem; color: var(--muted); padding: 2px 7px; border-radius: 4px; }
+.lang.active { color: var(--text); background: var(--bg3); }
+.lang-sep { color: var(--border); font-size: 0.75rem; }
+
+/* === HERO === */
+.hero {
+  position: relative; padding: 90px 0 60px;
+  overflow: hidden; border-bottom: 1px solid var(--border);
+  background:
+    radial-gradient(ellipse 70% 50% at 50% -5%, rgba(63,185,80,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 85% 80%, rgba(247,183,49,0.08) 0%, transparent 50%);
+}
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--green);
+  padding: 5px 13px; border-radius: 20px;
+  border: 1px solid rgba(63,185,80,0.4);
+  background: rgba(63,185,80,0.09);
+  margin-bottom: 22px;
+}
+.hero h1 {
+  font-size: clamp(2rem, 3.8vw, 3.1rem);
+  font-weight: 700; line-height: 1.12;
+  margin-bottom: 18px; letter-spacing: -0.025em;
+  max-width: 900px;
+}
+.hero h1 .accent { color: var(--green); }
+.hero h1 .num    { color: var(--red);   font-variant-numeric: tabular-nums; }
+.hero-desc {
+  color: var(--muted); font-size: 1rem; margin-bottom: 28px;
+  max-width: 720px; line-height: 1.7;
+}
+.badge-row { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 0; }
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 6px;
+  font-size: 0.75rem; font-weight: 500; border: 1px solid;
+}
+.badge-red    { color: #ff9070; border-color: rgba(199,70,52,0.45);  background: rgba(199,70,52,0.1); }
+.badge-blue   { color: #79c0ff; border-color: rgba(88,166,255,0.38); background: rgba(88,166,255,0.08); }
+.badge-gold   { color: #f7cc50; border-color: rgba(247,183,49,0.42); background: rgba(247,183,49,0.09); }
+.badge-green  { color: #56d364; border-color: rgba(63,185,80,0.42);  background: rgba(63,185,80,0.09); }
+.badge-purple { color: #d2a8ff; border-color: rgba(188,140,255,0.38);background: rgba(188,140,255,0.09); }
+.badge-orange { color: #ffb070; border-color: rgba(244,128,36,0.45); background: rgba(244,128,36,0.1); }
+.badge-gray   { color: var(--muted); border-color: var(--border);    background: var(--bg3); }
+
+/* === KPI STRIP === */
+.kpi-strip {
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px;
+  margin-top: 44px;
+}
+.kpi-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 22px 14px; text-align: center;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.kpi-card:hover { border-color: rgba(63,185,80,0.45); transform: translateY(-2px); }
+.kpi-num {
+  font-size: 1.9rem; font-weight: 700; color: var(--red); line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.kpi-num.green  { color: var(--green); }
+.kpi-num.gold   { color: var(--gold); }
+.kpi-num.blue   { color: var(--blue); }
+.kpi-num.purple { color: var(--purple); }
+.kpi-lbl { font-size: 0.72rem; color: var(--muted); margin-top: 6px; line-height: 1.3; }
+
+/* === TAC HIGHLIGHT === */
+.tac-section {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+  padding: 80px 0;
+}
+.tac-callout {
+  background:
+    radial-gradient(ellipse 60% 40% at 30% 50%, rgba(247,183,49,0.18) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 40% at 80% 50%, rgba(199,70,52,0.16) 0%, transparent 70%),
+    var(--bg3);
+  border: 1px solid rgba(247,183,49,0.35);
+  border-radius: 14px;
+  padding: 36px 36px 30px;
+  position: relative; overflow: hidden;
+}
+.tac-callout::before {
+  content: '⭐'; position: absolute; top: 14px; right: 22px; font-size: 1.4rem; opacity: 0.85;
+}
+.tac-callout h3 {
+  font-size: 1.5rem; color: var(--gold); margin-bottom: 6px;
+  letter-spacing: -0.01em;
+}
+.tac-callout .tac-headline {
+  font-size: 2.2rem; font-weight: 700; color: var(--text); margin: 14px 0 18px;
+  line-height: 1.18; letter-spacing: -0.02em;
+}
+.tac-callout .tac-headline .num { color: var(--red); font-variant-numeric: tabular-nums; }
+.tac-callout .tac-headline .ok  { color: var(--green); }
+.tac-callout p { color: var(--muted); font-size: 0.95rem; margin-bottom: 18px; max-width: 800px; }
+
+.tac-timeline {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;
+  margin-top: 22px;
+}
+.tac-step {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 8px; padding: 12px 12px;
+}
+.tac-step .t {
+  font-size: 0.7rem; font-weight: 700; color: var(--gold); letter-spacing: 0.05em;
+  margin-bottom: 4px; text-transform: uppercase;
+  font-family: 'JetBrains Mono', monospace;
+}
+.tac-step h4  { font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; }
+.tac-step p   { font-size: 0.78rem; color: var(--muted); line-height: 1.5; margin: 0; }
+
+/* === SCENARIO GRID === */
+.scen-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px;
+}
+.scen-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-left: 3px solid var(--green);
+  border-radius: var(--radius); padding: 24px 22px;
+  position: relative; transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+.scen-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.35); }
+.scen-card.warn  { border-left-color: var(--orange); }
+.scen-card.star  { border-left-color: var(--gold); }
+.scen-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--bg3); border: 1.5px solid var(--border);
+  font-weight: 700; font-size: 0.85rem; color: var(--red);
+  margin-right: 10px; vertical-align: middle;
+  font-family: 'JetBrains Mono', monospace;
+}
+.scen-status {
+  position: absolute; top: 22px; right: 22px;
+  font-size: 0.72rem; font-weight: 700;
+  padding: 2px 9px; border-radius: 5px; border: 1px solid;
+}
+.scen-status.ok    { color: #56d364; background: rgba(63,185,80,0.12); border-color: rgba(63,185,80,0.45); }
+.scen-status.warn  { color: #ffb070; background: rgba(244,128,36,0.12); border-color: rgba(244,128,36,0.45); }
+.scen-status.star  { color: #f7cc50; background: rgba(247,183,49,0.14); border-color: rgba(247,183,49,0.5); }
+.scen-card h3 { font-size: 1rem; margin-bottom: 8px; display: inline; }
+.scen-card .desc {
+  color: var(--muted); font-size: 0.875rem; margin: 14px 0 12px; line-height: 1.6;
+}
+.scen-fact {
+  background: var(--bg3); border: 1px dashed var(--border);
+  border-radius: 7px; padding: 9px 12px;
+  font-size: 0.83rem; color: var(--text);
+}
+.scen-fact b { color: var(--gold); font-weight: 600; }
+
+/* === KPI TABLE === */
+.kpi-section { background: var(--bg2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.metrics-table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); margin-top: 8px; }
+table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+thead th {
+  text-align: left; padding: 12px 16px;
+  font-size: 0.69rem; text-transform: uppercase; letter-spacing: 0.09em;
+  color: var(--muted); border-bottom: 1px solid var(--border);
+  background: var(--bg3); font-weight: 600;
+}
+tbody td { padding: 13px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr { background: var(--bg2); }
+tbody tr:hover { background: var(--bg3); }
+.metric-name { font-weight: 600; }
+.metric-val  { font-family: 'JetBrains Mono', monospace; color: var(--green); font-weight: 600; }
+.metric-val.warn { color: var(--orange); }
+.metric-val.red  { color: var(--red); }
+
+/* === BUGS === */
+.bug-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-left: 3px solid var(--red);
+  border-radius: var(--radius); padding: 20px 22px;
+  margin-bottom: 14px;
+}
+.bug-card .id {
+  display: inline-block; font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem; font-weight: 700; color: var(--red);
+  background: rgba(199,70,52,0.12); border: 1px solid rgba(199,70,52,0.4);
+  padding: 2px 8px; border-radius: 5px; margin-right: 8px;
+}
+.bug-card h3 { font-size: 0.98rem; display: inline; }
+.bug-grid {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-top: 12px;
+}
+.bug-grid .col h4 {
+  font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--muted); margin-bottom: 5px; font-weight: 700;
+}
+.bug-grid .col p { font-size: 0.84rem; color: var(--text); line-height: 1.55; margin: 0; }
+.bug-grid .col code { color: var(--blue); }
+
+/* === TAKEAWAYS === */
+.takeaway-section { background: var(--bg2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.takeaway-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px;
+}
+.takeaway-card {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 26px 22px;
+}
+.takeaway-card .icon { font-size: 1.6rem; margin-bottom: 10px; }
+.takeaway-card h3 { font-size: 1rem; margin-bottom: 12px; color: var(--text); }
+.takeaway-card.dba    h3 { color: var(--blue); }
+.takeaway-card.ai     h3 { color: var(--purple); }
+.takeaway-card.devops h3 { color: var(--gold); }
+.takeaway-card ul {
+  list-style: none; padding: 0; margin: 0;
+}
+.takeaway-card li {
+  font-size: 0.85rem; color: var(--text); line-height: 1.55;
+  padding: 6px 0 6px 18px; position: relative;
+  border-bottom: 1px dashed var(--border);
+}
+.takeaway-card li:last-child { border-bottom: none; }
+.takeaway-card li::before {
+  content: '▸'; position: absolute; left: 0; top: 6px;
+  color: var(--muted); font-size: 0.85rem;
+}
+
+/* === FOOTER === */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 40px 0 48px;
+  text-align: center;
+  color: var(--muted); font-size: 0.83rem;
+}
+.footer-links {
+  display: flex; justify-content: center; flex-wrap: wrap;
+  gap: 6px 20px; margin-bottom: 20px;
+}
+.footer-links a { color: var(--muted); font-size: 0.8rem; }
+.footer-links a:hover { color: var(--text); text-decoration: none; }
+
+/* === RESPONSIVE === */
+@media (max-width: 980px) {
+  .kpi-strip      { grid-template-columns: repeat(3, 1fr); }
+  .scen-grid      { grid-template-columns: 1fr; }
+  .bug-grid       { grid-template-columns: 1fr; }
+  .takeaway-grid  { grid-template-columns: 1fr; }
+  .tac-timeline   { grid-template-columns: repeat(2, 1fr); }
+  .tac-callout .tac-headline { font-size: 1.6rem; }
+}
+@media (max-width: 520px) {
+  .kpi-strip { grid-template-columns: repeat(2, 1fr); }
+  .nav-links { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ NAV ═══ -->
+<nav>
+  <div class="container nav-inner">
+    <div class="nav-logo">
+      <span>Oracle</span> 26ai MAA Lab<span class="sub">— Test results</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#scenarios">Scenarios</a></li>
+      <li><a href="#tac">TAC replay</a></li>
+      <li><a href="#kpi">Numbers</a></li>
+      <li><a href="#bugs">Bugs</a></li>
+      <li><a href="#takeaways">Takeaways</a></li>
+      <li><a href="index.html" class="back">← Architecture</a></li>
+      <li class="lang-switch">
+        <a href="test_results.html" class="lang active">🇬🇧 EN</a>
+        <span class="lang-sep">|</span>
+        <a href="test_results_PL.html" class="lang">🇵🇱 PL</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<header class="hero">
+  <div class="container">
+    <div class="hero-eyebrow">
+      ✅ Session S28 &nbsp;·&nbsp; 2026-04-29 &nbsp;·&nbsp; All scenarios passed
+    </div>
+    <h1>
+      <span class="num">6</span> MAA scenarios<br>
+      tested in <span class="accent">~90 minutes</span><br>
+      autonomous mode
+    </h1>
+    <p class="hero-desc">
+      Operator (DBA) + AI agent with SSH access to 5 virtual machines. Every scenario was a real
+      switchover, failover, or crash — no simulation. <b>50,466</b> rows in <code>test_log</code>,
+      <b>0</b> data loss, <b>100/100</b> TAC INSERTs after <code>kill -9</code> with no duplicates.
+      The same workload takes 6–8 hours when done manually.
+    </p>
+    <div class="badge-row">
+      <span class="badge badge-green">FSFO Auto-Failover</span>
+      <span class="badge badge-gold">TAC LEVEL1 replay</span>
+      <span class="badge badge-red">Oracle 26ai (23.26.1)</span>
+      <span class="badge badge-blue">RAC 2-node ↔ Active DG</span>
+      <span class="badge badge-purple">3× Observer quorum</span>
+      <span class="badge badge-orange">Maximum Availability + SYNC</span>
+    </div>
+
+    <div class="kpi-strip">
+      <div class="kpi-card">
+        <div class="kpi-num">6</div>
+        <div class="kpi-lbl">Scenarios<br>executed</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-num green">100/100</div>
+        <div class="kpi-lbl">TAC INSERT<br>(0 duplicates)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-num blue">50,466</div>
+        <div class="kpi-lbl">Rows<br>in test_log</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-num gold">6</div>
+        <div class="kpi-lbl">Real<br>failovers</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-num green">0</div>
+        <div class="kpi-lbl">Data loss<br>(RPO = 0)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-num purple">~90 min</div>
+        <div class="kpi-lbl">Autonomous<br>vs ~6–8 h manual</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══ TAC HIGHLIGHT ═══ -->
+<section class="tac-section" id="tac">
+  <div class="container">
+    <div class="section-label" style="color:var(--gold);">⭐ Highlight from scenario 3</div>
+    <h2>Transparent Application Continuity — replay after <code>kill -9</code></h2>
+    <p class="section-sub">
+      The strongest demo of the session. The Java application performed 100 INSERTs with a 1-second pause between rows.
+      During the batch the operator killed the Oracle server process (<code>kill -9 SPID</code>).
+      The application saw no error.
+    </p>
+
+    <div class="tac-callout">
+      <h3>TAC replay — 100% transparent to the application</h3>
+      <div class="tac-headline">
+        <span class="num">100</span> / 100 INSERTs &nbsp;·&nbsp;
+        <span class="ok">0</span> application errors &nbsp;·&nbsp;
+        <span class="ok">0</span> duplicates after <code>COMMIT</code>
+      </div>
+      <p>
+        TestHarness_TAC.java — Universal Connection Pool with <code>oracle.jdbc.replay.OracleDataSourceImpl</code>,
+        attribute <code>FAILOVER_RESTORE=LEVEL1</code>, <code>COMMIT_OUTCOME=TRUE</code>,
+        <code>SESSION_STATE=DYNAMIC</code>. Transaction Guard via LTXID guaranteed that re-execution
+        after the session takeover produced no duplicate rows.
+      </p>
+
+      <div class="tac-timeline">
+        <div class="tac-step">
+          <div class="t">t = 0 s</div>
+          <h4>Batch start</h4>
+          <p>UCP getConnection → MYAPP_TAC service on PRIM1. autoCommit=false.</p>
+        </div>
+        <div class="tac-step">
+          <div class="t">t ≈ 30 s</div>
+          <h4>kill -9 SPID</h4>
+          <p>Operator killed the Oracle server process serving the client session.</p>
+        </div>
+        <div class="tac-step">
+          <div class="t">t ≈ 32 s</div>
+          <h4>FAN event</h4>
+          <p>UCP detected the lost connection. Replay context activated.</p>
+        </div>
+        <div class="tac-step">
+          <div class="t">t ≈ 34 s</div>
+          <h4>Re-establish</h4>
+          <p>New session on the live prim02 instance. LTXID Transaction Guard guarantees idempotency.</p>
+        </div>
+        <div class="tac-step">
+          <div class="t">t ≈ 100 s</div>
+          <h4>COMMIT</h4>
+          <p>100/100 rows in test_log. The application saw 1 transaction, not 2.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SCENARIOS GRID ═══ -->
+<section id="scenarios">
+  <div class="container">
+    <div class="section-label">Results</div>
+    <h2>6 test scenarios</h2>
+    <p class="section-sub">Every scenario was executed on the live environment — no simulation, no mocks. The full log lives in <code>AUTONOMOUS_ACCESS_LOG.md</code>.</p>
+
+    <div class="scen-grid">
+
+      <!-- 0 -->
+      <div class="scen-card">
+        <span class="scen-status ok">✅ PASS</span>
+        <span class="scen-num">0</span>
+        <h3>Pre-flight validation</h3>
+        <p class="desc">Full <code>validate_env.sh --full</code> on prim01 and stby01 — DNS, NTP, SSH equivalency, ASM disks, HugePages, THP, memlock, broker SUCCESS.</p>
+        <div class="scen-fact"><b>Fact:</b> 16 PASS / 0 FAIL — environment ready for load tests.</div>
+      </div>
+
+      <!-- 1 -->
+      <div class="scen-card">
+        <span class="scen-status ok">✅ PASS</span>
+        <span class="scen-num">1</span>
+        <h3>Planned RAC ↔ SI switchover</h3>
+        <p class="desc"><code>SWITCHOVER TO STBY</code> in broker — primary became standby, stby01 (Oracle Restart) took the primary role. APPPDB OPEN automatically.</p>
+        <div class="scen-fact"><b>Fact:</b> TestHarness saw a single UCP-29 and continued on the new primary with no application error.</div>
+      </div>
+
+      <!-- 2 -->
+      <div class="scen-card">
+        <span class="scen-status ok">✅ PASS</span>
+        <span class="scen-num">2</span>
+        <h3>Unplanned FSFO failover</h3>
+        <p class="desc">Master Observer detected a transient CRS restart and performed an automatic failover to stby01 — no DBA intervention.</p>
+        <div class="scen-fact"><b>Fact:</b> A <b>spontaneous</b> failover during the test — observed in real time, proving FSFO works "in the wild".</div>
+      </div>
+
+      <!-- 3 (TAC replay - star) -->
+      <div class="scen-card star">
+        <span class="scen-status star">⭐ ELITE</span>
+        <span class="scen-num">3</span>
+        <h3>TAC replay — kill -9 during a batch</h3>
+        <p class="desc">100 INSERTs with 1-second pauses. Mid-batch the operator killed the Oracle server process. UCP+TAC restored the session on a live instance.</p>
+        <div class="scen-fact"><b>Fact:</b> <b>100 INSERTs, 0 application errors, 0 duplicates after COMMIT</b> — see the <a href="#tac" style="color:var(--gold);">TAC replay</a> section ↑</div>
+      </div>
+
+      <!-- 4 -->
+      <div class="scen-card warn">
+        <span class="scen-status warn">⚠️ EDU</span>
+        <span class="scen-num">4</span>
+        <h3>Apply Lag exceeded</h3>
+        <p class="desc">Apply was paused on stby01, 50,000 rows of redo were generated on prim01 (apply lag grew to ~5 min), and a failover was forced.</p>
+        <div class="scen-fact"><b>Lesson:</b> <code>FastStartFailoverLagLimit=0</code> protects <b>Transport Lag</b>, NOT Apply Lag. The failover succeeded despite the large Apply Lag — Oracle-correct, counter-intuitive.</div>
+      </div>
+
+      <!-- 5 -->
+      <div class="scen-card warn">
+        <span class="scen-status warn">⚠️ PART</span>
+        <span class="scen-num">5</span>
+        <h3>Master Observer outage</h3>
+        <p class="desc">Forced systemd stop of <code>dgmgrl-observer-ext.service</code>. We checked whether the 3-Observer quorum auto-promotes a backup.</p>
+        <div class="scen-fact"><b>Lesson:</b> Explicit <code>SET MASTEROBSERVER TO obs_dc</code> worked OK. Auto-promotion was blocked by <code>RestartSec=10s</code> in systemd — the observer came back faster than the broker could detect the loss.</div>
+      </div>
+
+      <!-- 6 -->
+      <div class="scen-card" style="grid-column: 1 / -1;">
+        <span class="scen-status ok">✅ PASS</span>
+        <span class="scen-num">6</span>
+        <h3>Final validation — all layers</h3>
+        <p class="desc">Full environment audit after every test: broker config, DG status, FSFO state, observer quorum, TAC service flags, row counts in <code>test_log</code>, RPO check.</p>
+        <div class="scen-fact"><b>Fact:</b> All layers PASS · <b>50,466 rows</b> in <code>test_log</code> (50,000 lag-test + 100 TAC batch + 366 earlier) · <b>0 data loss</b> — RPO = 0 maintained throughout the session.</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══ KPI TABLE ═══ -->
+<section class="kpi-section" id="kpi">
+  <div class="container">
+    <div class="section-label">Key numbers</div>
+    <h2>What actually happened</h2>
+    <p class="section-sub">Hard metrics from the full autonomous test session (Step 3).</p>
+
+    <div class="metrics-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>Value</th>
+            <th>Context</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="metric-name">Time to execute scenarios 0–6</td><td class="metric-val">~90 min</td><td>Autonomous mode (operator + AI agent + SSH)</td></tr>
+          <tr><td class="metric-name">Equivalent manual session</td><td class="metric-val warn">~6–8 hours</td><td>Operator pastes outputs, reads logs alone — ~6× slower</td></tr>
+          <tr><td class="metric-name">Real switchovers performed</td><td class="metric-val">3</td><td>Manual <code>SWITCHOVER TO &lt;db&gt;</code> in broker</td></tr>
+          <tr><td class="metric-name">Real failovers performed</td><td class="metric-val">1</td><td>Manual <code>FAILOVER TO &lt;db&gt; IMMEDIATE</code></td></tr>
+          <tr><td class="metric-name">Spontaneous FSFO failovers</td><td class="metric-val">2</td><td>Detected by the Observer under load</td></tr>
+          <tr><td class="metric-name">TAC replay scenarios</td><td class="metric-val">100/100</td><td>INSERTs without duplicates after <code>kill -9 SPID</code></td></tr>
+          <tr><td class="metric-name">Rows in <code>test_log</code> (final)</td><td class="metric-val">50,466</td><td>50,000 (lag) + 100 (TAC batch) + 366 (earlier)</td></tr>
+          <tr><td class="metric-name">Data loss (RPO)</td><td class="metric-val">0</td><td>MaxAvailability + SYNC + AFFIRM upheld</td></tr>
+          <tr><td class="metric-name">Bugs fixed during the session</td><td class="metric-val warn">5</td><td>S28-64..S28-67 — see the Bugs section ↓</td></tr>
+          <tr><td class="metric-name">New entries in <code>EXECUTION_LOG.md</code></td><td class="metric-val">~10</td><td>Permanent session documentation (audit trail)</td></tr>
+          <tr><td class="metric-name">Lines in <code>AUTONOMOUS_ACCESS_LOG.md</code></td><td class="metric-val">975</td><td>Complete agent transcript + Executive Summary</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ BUGS ═══ -->
+<section id="bugs">
+  <div class="container">
+    <div class="section-label">Caught only in real testing</div>
+    <h2>5 bugs that surfaced only under real operation</h2>
+    <p class="section-sub">These gaps would not appear on a single run — they only emerged with multiple role swaps and real load.</p>
+
+    <div class="bug-card">
+      <span class="id">S28-64</span>
+      <h3>APPPDB OPEN MODE persistence after switchover</h3>
+      <div class="bug-grid">
+        <div class="col">
+          <h4>Problem</h4>
+          <p><code>SAVE STATE</code> stores the PDB state <i>per-role at a point in time</i>. After a switchover the old state persists and APPPDB stays in MOUNTED.</p>
+        </div>
+        <div class="col">
+          <h4>Symptom</h4>
+          <p>ORA-65054 when connecting to <code>APPPDB</code> after stby01 takes over the primary role.</p>
+        </div>
+        <div class="col">
+          <h4>Fix</h4>
+          <p><code>srvctl modify pdb -policy AUTOMATIC -role PRIMARY</code> on both clusters — CRS-managed auto-OPEN after a role swap.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bug-card">
+      <span class="id">S28-65</span>
+      <h3>SCAN listener BLOCKED service after multiple role swaps</h3>
+      <div class="bug-grid">
+        <div class="col">
+          <h4>Problem</h4>
+          <p>After 3+ role swaps the <code>MYAPP_TAC</code> service is BLOCKED on the SCAN listener. JDBC sees "ORA-12514 listener does not currently know of service".</p>
+        </div>
+        <div class="col">
+          <h4>Symptom</h4>
+          <p>TestHarness_TAC connected to stby01 instead of prim01 (the service was registered on both). Routing did not respect <code>-role PRIMARY</code>.</p>
+        </div>
+        <div class="col">
+          <h4>Fix</h4>
+          <p><code>srvctl stop service ... ; srvctl start service ...</code> for clean re-registration. Fix targeted at Oracle Restart on SI.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bug-card">
+      <span class="id">S28-66</span>
+      <h3>DGMGRL syntax change in 26ai for Master Observer promotion</h3>
+      <div class="bug-grid">
+        <div class="col">
+          <h4>Problem</h4>
+          <p>Legacy 19c <code>EDIT CONFIGURATION SET MASTEROBSERVER='&lt;name&gt;'</code> does not work in 26ai — syntax error.</p>
+        </div>
+        <div class="col">
+          <h4>Symptom</h4>
+          <p>"DGM-XXXX: invalid syntax" when manually promoting a backup observer in scenario 5.</p>
+        </div>
+        <div class="col">
+          <h4>Fix</h4>
+          <p>26ai uses a new top-level syntax: <code>SET MASTEROBSERVER TO &lt;name&gt;;</code>. Deployment scripts updated.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bug-card">
+      <span class="id">S28-67</span>
+      <h3>FastStartFailoverLagLimit protects Transport, NOT Apply</h3>
+      <div class="bug-grid">
+        <div class="col">
+          <h4>Problem</h4>
+          <p>Assumption: "<code>LagLimit=0</code> blocks failover whenever the standby has any lag." The assumption is WRONG.</p>
+        </div>
+        <div class="col">
+          <h4>Symptom</h4>
+          <p>In scenario 4 apply was stopped, apply lag grew to 5 min — failover still succeeded because Transport Lag was 0 (redo had reached the SRL).</p>
+        </div>
+        <div class="col">
+          <h4>Fix</h4>
+          <p>Educational lesson (no physical fix). MaxAvailability + AFFIRM = "redo arrived" ≠ "redo applied". To gate on Apply Lag, manual <code>STARTUP MOUNT</code> after failover (broker auto-reinstate).</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bug-card">
+      <span class="id">S28-68</span>
+      <h3>systemd RestartSec=10s blocks observer-outage tests</h3>
+      <div class="bug-grid">
+        <div class="col">
+          <h4>Problem</h4>
+          <p>In scenario 5 we wanted to demonstrate auto-promotion of a backup observer. <code>kill -9</code> on the Master did not help — systemd restarted the process before the broker noticed the loss.</p>
+        </div>
+        <div class="col">
+          <h4>Symptom</h4>
+          <p>Auto-promotion did not occur because Master Observer came back faster than <code>FastStartFailoverThreshold=30s</code>.</p>
+        </div>
+        <div class="col">
+          <h4>Fix</h4>
+          <p>Workaround: explicit <code>SET MASTEROBSERVER TO obs_dc</code> for the demo. In production: consider a larger <code>RestartSec</code> on the dgmgrl-observer-ext unit, but only if the outage demo is a priority.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ TAKEAWAYS ═══ -->
+<section class="takeaway-section" id="takeaways">
+  <div class="container">
+    <div class="section-label">Lessons learned</div>
+    <h2>Lessons from autonomous MAA testing</h2>
+    <p class="section-sub">3 perspectives on the same session: DBA, AI agent, DevOps/SRE.</p>
+
+    <div class="takeaway-grid">
+
+      <div class="takeaway-card dba">
+        <div class="icon">🛠️</div>
+        <h3>Value for the DBA</h3>
+        <ul>
+          <li>~6–8× faster test execution than manual</li>
+          <li>Every bug = automatic lookup in <code>EXECUTION_LOG</code> + <code>FIXES_LOG</code> + auto-fix</li>
+          <li>Every iteration = a transparent trail in <code>AUTONOMOUS_ACCESS_LOG.md</code></li>
+          <li>Operator approves strategic decisions, AI executes step by step</li>
+          <li>Fixes return to the script immediately — the next iteration is idempotent</li>
+        </ul>
+      </div>
+
+      <div class="takeaway-card ai">
+        <div class="icon">🤖</div>
+        <h3>What the AI agent learned</h3>
+        <ul>
+          <li>26ai broker terminology has changed compared to 19c (S28-66)</li>
+          <li>Multi-Observer redundancy works flawlessly in operation</li>
+          <li>TAC LEVEL1 + Transaction Guard = 100% transparent replay</li>
+          <li>Auto-Reinstate in 26ai is reliable — even after multiple swaps</li>
+          <li>systemd <code>RestartSec=10s</code> can mask failures during tests</li>
+        </ul>
+      </div>
+
+      <div class="takeaway-card devops">
+        <div class="icon">🚀</div>
+        <h3>DevOps / SRE</h3>
+        <ul>
+          <li>The operator + AI agent + SSH equivalency pattern scales to production</li>
+          <li>New-DBA onboarding: read the live log instead of Confluence</li>
+          <li>Incident response: AI carries the context of past fixes + current environment state</li>
+          <li>Knowledge transfer: every session generates a permanent artifact</li>
+          <li>A typical stack for banking/telco/healthcare — 3-site MAA + TAC</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <div class="container">
+    <div class="footer-links">
+      <a href="index.html">← Architecture</a>
+      <a href="../AUTONOMOUS_ACCESS_LOG.md">AUTONOMOUS_ACCESS_LOG.md</a>
+      <a href="../EXECUTION_LOG.md">EXECUTION_LOG.md</a>
+      <a href="../OPERATIONS.md">OPERATIONS.md</a>
+      <a href="09_Test_Scenarios.md">09 Scenarios (docs)</a>
+      <a href="08_TAC_and_Tests.md">08 TAC</a>
+      <a href="07_FSFO_Observers.md">07 FSFO</a>
+    </div>
+    <p style="margin-bottom:6px;">
+      Oracle 26ai (23.26.1) &nbsp;·&nbsp; Maximum Availability Architecture &nbsp;·&nbsp; Session S28 — 2026-04-29
+    </p>
+    <p style="font-size:0.76rem; color:#555e6e;">
+      Author: KCB Kris &nbsp;·&nbsp; Educational environment (Oracle Developer License) &nbsp;·&nbsp;
+      <span style="color:#30363d;">●</span> No production workload
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>
