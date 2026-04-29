@@ -61,7 +61,7 @@
 
 ## 🌐 GitHub Pages
 
-- https://krzysztof-i-cabaj.github.io/oracle-26ai-fsfo-tac-lab/ (architecture + 15 steps)
+- https://krzysztof-i-cabaj.github.io/oracle-26ai-fsfo-tac-lab/index.html (architecture + 15 steps)
 
 ---
 
