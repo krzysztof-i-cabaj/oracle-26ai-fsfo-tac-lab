@@ -53,13 +53,13 @@
 
 **KPI:** ~90 min autonomous (vs ~6–8h manual) · 6 faktycznych failover · RPO = 0 · 5 bugów (S28-64..S28-68) wykrytych i naprawionych.
 
-➡️ **Pełne wyniki w** - https://krzysztof-i-cabaj.github.io/oracle-26ai-fsfo-tac-lab/test_results.html → wyniki 6 scenariuszy
+➡️ **Pełne wyniki w** - https://krzysztof-i-cabaj.github.io/oracle-26ai-fsfo-tac-lab/test_results_PL.html → wyniki 6 scenariuszy
 
 ---
 
 ## 🌐 GitHub Pages
 
-- https://krzysztof-i-cabaj.github.io/oracle-26ai-fsfo-tac-lab/ (architektura + 15 kroków)
+- https://krzysztof-i-cabaj.github.io/oracle-26ai-fsfo-tac-lab/index_PL.html (architektura + 15 kroków)
 
 ---
 
