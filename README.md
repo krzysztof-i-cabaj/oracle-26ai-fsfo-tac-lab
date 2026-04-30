@@ -59,12 +59,6 @@
 
 ---
 
-## 🌐 GitHub Pages
-
-- https://krzysztof-i-cabaj.github.io/oracle-26ai-fsfo-tac-lab/index.html (architecture + 15 steps)
-
----
-
 ## ✅ Requirements
 
 - **Oracle Database 26ai (23.26.1)** Enterprise Edition — Primary and Standby (or 19c with `concept/sql/*` adapted to the `*_19c.sql` variants)
