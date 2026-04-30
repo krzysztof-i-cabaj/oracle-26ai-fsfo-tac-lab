@@ -48,8 +48,8 @@ The build process is divided into 8 coherent steps. Execute them in the followin
 5.  **`05_Database_Primary.md`** — Installation of the DB engine (Software-Only) and creation of the `CDB PRIM` from a DBCA response file. ARCHIVELOG and Flashback configuration.
 6.  **`06_Data_Guard_Standby.md`** — Modern, automated creation of the standby database using the built-in Broker command (`CREATE PHYSICAL STANDBY`).
 7.  **`07_FSFO_Observery.md`** — Installation of the 26ai Client, setting up passwordless auto-login to the SSO Wallet, and activation of Fast-Start Failover.
-8.  **`08_TAC_i_Testy.md`** — The final check. Configuration of the application service, cross-site ONS, and running a simulated fault in Java UCP.
-9.  **`09_Scenariusze_Testowe.md`** — A set of scenarios demonstrating the resilience of the architecture (Switchover, unplanned Failover, long-running TAC Replay, and Apply Lag blocking).
+8.  **`08_TAC_and_Tests.md`** — The final check. Configuration of the application service, cross-site ONS, and running a simulated fault in Java UCP.
+9.  **`09_Test_Scenarios.md`** — A set of scenarios demonstrating the resilience of the architecture (Switchover, unplanned Failover, long-running TAC Replay, and Apply Lag blocking).
 
 ---
 
