@@ -1,6 +1,6 @@
 > 🇬🇧 English | [🇵🇱 Polski](./EXECUTION_LOG_PL.md)
 
-# Execution log for FIXES_PLAN_v2_PL.md
+# Execution log for FIXES_PLAN_v2.md
 
 **Execution date:** 2026-04-27
 **Version:** 1.0 (auto-mode execution)
