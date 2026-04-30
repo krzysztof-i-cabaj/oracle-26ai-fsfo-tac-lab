@@ -31,7 +31,7 @@
 | Profil | Punkt wejścia |
 |---|---|
 | **🏗️ Architekt** — chcę zrozumieć decyzje | [`concept/docs/DESIGN.md`](./concept/docs/DESIGN.md) (8 ADR, kompatybilność, security) |
-| **📖 DBA — chcę przeczytać guide** | [`concept/docs/FSFO-GUIDE.md`](./concept/docs/FSFO-GUIDE.md) + [`concept/docs/TAC-GUIDE.md`](./concept/docs/TAC-GUIDE.md) |
+| **📖 DBA — chcę przeczytać guide** | [`concept/docs/FSFO-GUIDE.md`](./concept/docs/FSFO-GUIDE.md) + [`concept/docs/TAC-GUIDE.md`](./concept/docs/TAC-GUIDE.md) + [interaktywna checklist wdrożenia (concept · 19c · 3-site)](https://krzysztof-i-cabaj.github.io/oracle-26ai-fsfo-tac-lab/checklist_PL.html) |
 | **🔧 Operator — chcę zbudować LAB** | [`lab/README_PL.md`](./lab/README_PL.md) (pre-flight + 9 kroków) lub interaktywnie [`architektura + 15 kroków`](https://krzysztof-i-cabaj.github.io/oracle-26ai-fsfo-tac-lab/index_PL.html) |
 | **🧪 Curious — co z tego wyszło?** | [`Finalne testy`](https://krzysztof-i-cabaj.github.io/oracle-26ai-fsfo-tac-lab/test_results_PL.html) — 6 scenariuszy testowych, wyniki, lekcje |
 | **🐛 Debug — błąd Oracle X** | Najpierw [`legacy/lessons-learned/FIXES_LOG_PL.md`](./legacy/lessons-learned/FIXES_LOG_PL.md) (96 fixów chronologicznie), potem [`lab/EXECUTION_LOG_PL.md`](./lab/EXECUTION_LOG_PL.md) (S01–S28) |
