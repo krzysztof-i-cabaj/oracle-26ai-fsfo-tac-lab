@@ -53,9 +53,6 @@ Manual Data Guard failover + no transaction replay = long application downtime (
 | [FSFO-GUIDE.md](FSFO-GUIDE.md) | FSFO guide (11 sections) |
 | [TAC-GUIDE.md](TAC-GUIDE.md) | TAC guide (10 sections) |
 | [INTEGRATION-GUIDE.md](INTEGRATION-GUIDE.md) | FSFO+TAC integration (8 sections) |
-| [../CLAUDE.md](../../CLAUDE.md) | Workspace global rules |
-| [../_oracle_/CLAUDE.md](../../_oracle_/CLAUDE.md) | Oracle conventions |
-| [../20260130-sqlconn/README.md](../../20260130-sqlconn/README.md) | `sqlconn.sh` documentation |
 
 ---
 
