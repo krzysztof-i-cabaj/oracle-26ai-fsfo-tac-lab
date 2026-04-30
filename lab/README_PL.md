@@ -47,9 +47,9 @@ Proces budowy podzielony jest na 8 spójnych kroków. Wykonuj je w poniższej ko
 4.  **`04_Grid_Infrastructure_PL.md`** - Instalacja `Grid Infrastructure` na `prim01/prim02` oraz oprogramowania `Oracle Restart` na węźle `stby01`.
 5.  **`05_Database_Primary_PL.md`** - Instalacja silnika DB (Software-Only) i powołanie `CDB PRIM` z pliku odpowiedzi DBCA. Konfiguracja ARCHIVELOG i Flashback.
 6.  **`06_Data_Guard_Standby_PL.md`** - Nowoczesne, zautomatyzowane tworzenie bazy rezerwowej przy pomocy wbudowanego polecenia Brokera (`CREATE PHYSICAL STANDBY`).
-7.  **`07_FSFO_Observery_PL.md`** - Instalacja Klienta 26ai, utworzenie bezhasłowego autologowania do Wallet SSO i aktywacja Fast-Start Failover.
-8.  **`08_TAC_i_Testy_PL.md`** - Ostateczny sprawdzian. Konfiguracja serwisu aplikacyjnego, cross-site ONS i uruchomienie symulowanej usterki w Java UCP.
-9.  **`09_Scenariusze_Testowe_PL.md`** - Zestaw scenariuszy demonstrujących niezawodność architektury (Switchover, nieplanowany Failover, długotrwały TAC Replay oraz blokady Apply Lag).
+7.  **`07_FSFO_Observers_PL.md`** - Instalacja Klienta 26ai, utworzenie bezhasłowego autologowania do Wallet SSO i aktywacja Fast-Start Failover.
+8.  **`08_TAC_and_Tests_PL`** - Ostateczny sprawdzian. Konfiguracja serwisu aplikacyjnego, cross-site ONS i uruchomienie symulowanej usterki w Java UCP.
+9.  **`09_Test_Scenarios_PL.md`** - Zestaw scenariuszy demonstrujących niezawodność architektury (Switchover, nieplanowany Failover, długotrwały TAC Replay oraz blokady Apply Lag).
 
 ---
 
