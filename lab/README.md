@@ -40,9 +40,9 @@ Instead of pasting scripts manually, the entire deployment has been split into t
 
 The build process is divided into 8 coherent steps. Execute them in the following order:
 
-1.  **`01_Architektura_i_Zalozenia.md`** — Memory requirements, ports, naming, and an initial overview of the machine topology.
-2.  **`02_Przygotowanie_OS_i_Sieci.md`** — Deploying the operating systems from prepared kickstarts, network testing, and building the Full Mesh SSH.
-    - **`02b_Przygotowanie_OS_Manualne.md`** — Alternative to kickstart: all steps presented step-by-step for each host with copy/paste commands (network, users, directories, THP, HugePages, NTP, DNS).
+1.  **`01_Architecture_and_Assumptions.md`** — Memory requirements, ports, naming, and an initial overview of the machine topology.
+2.  **`02_OS_and_Network_Preparation.md`** — Deploying the operating systems from prepared kickstarts, network testing, and building the Full Mesh SSH.
+    - **`02b_OS_Preparation_Manual.md`** — Alternative to kickstart: all steps presented step-by-step for each host with copy/paste commands (network, users, directories, THP, HugePages, NTP, DNS).
 3.  **`03_Storage_iSCSI.md`** — The heart of performance — creating iSCSI LVM Targets on the `infra01` server and connecting them as raw blocks to the RAC cluster.
 4.  **`04_Grid_Infrastructure.md`** — Installation of `Grid Infrastructure` on `prim01/prim02` and the `Oracle Restart` software on the `stby01` node.
 5.  **`05_Database_Primary.md`** — Installation of the DB engine (Software-Only) and creation of the `CDB PRIM` from a DBCA response file. ARCHIVELOG and Flashback configuration.
