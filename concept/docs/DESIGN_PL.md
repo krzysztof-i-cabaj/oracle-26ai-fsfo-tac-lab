@@ -56,9 +56,7 @@
 | [FSFO-GUIDE.md](FSFO-GUIDE.md) | Poradnik FSFO (11 sekcji) |
 | [TAC-GUIDE.md](TAC-GUIDE.md) | Poradnik TAC (10 sekcji) |
 | [INTEGRATION-GUIDE.md](INTEGRATION-GUIDE.md) | FSFO+TAC integration (8 sekcji) |
-| [../CLAUDE.md](../../CLAUDE.md) | Zasady globalne workspace |
-| [../_oracle_/CLAUDE.md](../../_oracle_/CLAUDE.md) | Konwencje Oracle |
-| [../20260130-sqlconn/README.md](../../20260130-sqlconn/README.md) | Dokumentacja `sqlconn.sh` |
+
 
 ---
 
