@@ -55,7 +55,7 @@
 
 **KPIs:** ~90 min autonomous (vs ~6–8 h manual) · 6 actual failovers · RPO = 0 · 5 bugs (S28-64..S28-68) detected and fixed.
 
-➡️ **Full results in** - https://krzysztof-i-cabaj.github.io/oracle-26ai-fsfo-tac-lab/test_results.html → results from 6 scenarios
+➡️ [**Full results**](https://krzysztof-i-cabaj.github.io/oracle-26ai-fsfo-tac-lab/test_results.html) → results from 6 scenarios
 
 ---
 
