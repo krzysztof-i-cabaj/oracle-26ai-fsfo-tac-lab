@@ -32,7 +32,7 @@
 |---|---|
 | **🏗️ Architect** — I want to understand the decisions | [`concept/docs/DESIGN.md`](./concept/docs/DESIGN.md) (8 ADRs, compatibility, security) |
 | **📖 DBA — I want to read the guide** | [`concept/docs/FSFO-GUIDE.md`](./concept/docs/FSFO-GUIDE.md) + [`concept/docs/TAC-GUIDE.md`](./concept/docs/TAC-GUIDE.md) |
-| **🔧 Operator — I want to build the lab** | [`lab/README.md`](./lab/README.md) (pre-flight + 9 steps) or interactively [`lab/docs/index.html`](./lab/docs/index.html) |
+| **🔧 Operator — I want to build the lab** | [`lab/README.md`](./lab/README.md) (pre-flight + 9 steps) or interactively [`architecture + 15 steps`](https://krzysztof-i-cabaj.github.io/oracle-26ai-fsfo-tac-lab/index.html) |
 | **🧪 Curious — what came out of this?** | [`lab/docs/test_results.html`](./lab/docs/test_results.html) — 6 test scenarios, results, lessons |
 | **🐛 Debug — Oracle error X** | Start with [`legacy/lessons-learned/FIXES_LOG.md`](./legacy/lessons-learned/FIXES_LOG.md) (96 fixes chronologically), then [`lab/EXECUTION_LOG.md`](./lab/EXECUTION_LOG.md) (S01–S28) |
 | **📊 Case study** | [`lab/AUTONOMOUS_ACCESS_LOG.md`](./lab/AUTONOMOUS_ACCESS_LOG.md) — 975-line transcript of an autonomous MAA test session + Executive Summary |
