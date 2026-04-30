@@ -40,16 +40,16 @@ Zamiast przeklejać skrypty ręcznie, całe wdrożenie zostało podzielone na te
 
 Proces budowy podzielony jest na 8 spójnych kroków. Wykonuj je w poniższej kolejności:
 
-1.  **`01_Architektura_i_Zalozenia.md`** - Wymagania pamięciowe, porty, nazewnictwo i wstępny rzut na topologię maszyn.
-2.  **`02_Przygotowanie_OS_i_Sieci.md`** - Wdrażanie systemów operacyjnych z gotowych kickstartów, testowanie sieci i budowa Full Mesh SSH.
-    - **`02b_Przygotowanie_OS_Manualne.md`** - Alternatywa dla kickstarta: wszystkie kroki krok po kroku dla każdego hosta z komendami copy/paste (sieć, użytkownicy, katalogi, THP, HugePages, NTP, DNS).
-3.  **`03_Storage_iSCSI.md`** - Serce wydajności - tworzenie Targetów iSCSI LVM na serwerze `infra01` i podpinanie ich jako surowe bloki do klastra RAC.
-4.  **`04_Grid_Infrastructure.md`** - Instalacja `Grid Infrastructure` na `prim01/prim02` oraz oprogramowania `Oracle Restart` na węźle `stby01`.
-5.  **`05_Database_Primary.md`** - Instalacja silnika DB (Software-Only) i powołanie `CDB PRIM` z pliku odpowiedzi DBCA. Konfiguracja ARCHIVELOG i Flashback.
-6.  **`06_Data_Guard_Standby.md`** - Nowoczesne, zautomatyzowane tworzenie bazy rezerwowej przy pomocy wbudowanego polecenia Brokera (`CREATE PHYSICAL STANDBY`).
-7.  **`07_FSFO_Observery.md`** - Instalacja Klienta 26ai, utworzenie bezhasłowego autologowania do Wallet SSO i aktywacja Fast-Start Failover.
-8.  **`08_TAC_i_Testy.md`** - Ostateczny sprawdzian. Konfiguracja serwisu aplikacyjnego, cross-site ONS i uruchomienie symulowanej usterki w Java UCP.
-9.  **`09_Scenariusze_Testowe.md`** - Zestaw scenariuszy demonstrujących niezawodność architektury (Switchover, nieplanowany Failover, długotrwały TAC Replay oraz blokady Apply Lag).
+1.  **`01_Architecture_and_Assumptions_PL.md`** - Wymagania pamięciowe, porty, nazewnictwo i wstępny rzut na topologię maszyn.
+2.  **`02_OS_and_Network_Preparation_PL.md`** - Wdrażanie systemów operacyjnych z gotowych kickstartów, testowanie sieci i budowa Full Mesh SSH.
+    - **`02b_OS_Preparation_Manual_PL.md`** - Alternatywa dla kickstarta: wszystkie kroki krok po kroku dla każdego hosta z komendami copy/paste (sieć, użytkownicy, katalogi, THP, HugePages, NTP, DNS).
+3.  **`03_Storage_iSCSI_PL.md`** - Serce wydajności - tworzenie Targetów iSCSI LVM na serwerze `infra01` i podpinanie ich jako surowe bloki do klastra RAC.
+4.  **`04_Grid_Infrastructure_PL.md`** - Instalacja `Grid Infrastructure` na `prim01/prim02` oraz oprogramowania `Oracle Restart` na węźle `stby01`.
+5.  **`05_Database_Primary_PL.md`** - Instalacja silnika DB (Software-Only) i powołanie `CDB PRIM` z pliku odpowiedzi DBCA. Konfiguracja ARCHIVELOG i Flashback.
+6.  **`06_Data_Guard_Standby_PL.md`** - Nowoczesne, zautomatyzowane tworzenie bazy rezerwowej przy pomocy wbudowanego polecenia Brokera (`CREATE PHYSICAL STANDBY`).
+7.  **`07_FSFO_Observery_PL.md`** - Instalacja Klienta 26ai, utworzenie bezhasłowego autologowania do Wallet SSO i aktywacja Fast-Start Failover.
+8.  **`08_TAC_i_Testy_PL.md`** - Ostateczny sprawdzian. Konfiguracja serwisu aplikacyjnego, cross-site ONS i uruchomienie symulowanej usterki w Java UCP.
+9.  **`09_Scenariusze_Testowe_PL.md`** - Zestaw scenariuszy demonstrujących niezawodność architektury (Switchover, nieplanowany Failover, długotrwały TAC Replay oraz blokady Apply Lag).
 
 ---
 
