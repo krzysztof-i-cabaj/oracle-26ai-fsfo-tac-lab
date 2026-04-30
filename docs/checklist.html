@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="KCB Kris">
+<meta name="description" content="FSFO + TAC Deployment Checklist — Oracle 19c 3-site architecture (DC/DR/EXT)">
+<title>FSFO + TAC Deployment Checklist — Oracle 19c</title>
+<style>
+  :root {
+    --bg: #0b1020;
+    --bg-card: rgba(22, 30, 54, 0.75);
+    --bg-card-hover: rgba(30, 40, 70, 0.85);
+    --border: rgba(120, 140, 200, 0.18);
+    --text: #e3e9f5;
+    --text-dim: #9aa8c9;
+    --accent: #38bdf8;
+    --ok: #34d399;
+    --warn: #fbbf24;
+    --crit: #f87171;
+    --high: #ef4444;
+    --med: #f59e0b;
+    --low: #22c55e;
+    --phase0: #06b6d4;
+    --phase1: #34d399;
+    --phase2: #fbbf24;
+    --phase3: #fb923c;
+    --phase4: #818cf8;
+    --phase5: #facc15;
+    --phase6: #10b981;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 24px;
+    background:
+      radial-gradient(ellipse at top left, rgba(56, 189, 248, 0.08), transparent 40%),
+      radial-gradient(ellipse at bottom right, rgba(129, 140, 248, 0.08), transparent 40%),
+      linear-gradient(180deg, #0b1020 0%, #080c19 100%);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+  h1 { font-size: 1.75rem; margin: 0 0 8px; font-weight: 700; }
+  h2 { font-size: 1.15rem; margin: 0 0 16px; font-weight: 600; }
+  h3 { font-size: 0.95rem; margin: 0 0 12px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .subtitle { color: var(--text-dim); font-size: 0.85rem; margin-top: 4px; }
+  .btn-reset {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+  }
+  .btn-reset:hover { background: var(--bg-card-hover); color: var(--text); }
+
+  .lang-switch { display: flex; align-items: center; gap: 6px; margin-left: 10px; padding-left: 14px; border-left: 1px solid var(--border, #30363d); list-style: none; }
+  .lang { font-size: 0.78rem; color: var(--muted, #8b949e); padding: 2px 7px; border-radius: 4px; text-decoration: none; }
+  .lang.active { color: var(--text, #e6edf3); background: var(--bg3, #21262d); }
+  .lang-sep { color: var(--border, #30363d); font-size: 0.75rem; }
+
+  .progress-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    backdrop-filter: blur(10px);
+  }
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+  .progress-bar {
+    height: 8px;
+    background: rgba(60, 80, 140, 0.3);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--ok));
+    border-radius: 4px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: background 0.25s, border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+  }
+  .card:hover {
+    background: var(--bg-card-hover);
+    border-color: rgba(56, 189, 248, 0.28);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(56, 189, 248, 0.08);
+  }
+
+  /* Architecture Overview */
+  .arch-grid {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr;
+    gap: 16px;
+    align-items: center;
+  }
+  @media (max-width: 900px) {
+    .arch-grid { grid-template-columns: 1fr; }
+    .arch-arrow { transform: rotate(90deg); justify-self: center; }
+  }
+  .arch-box {
+    background: rgba(20, 28, 50, 0.6);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    text-align: center;
+    cursor: default;
+    transition: background 0.25s, border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+  }
+  .arch-box:hover {
+    background: rgba(30, 42, 72, 0.75);
+    border-color: rgba(56, 189, 248, 0.45);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 32px rgba(56, 189, 248, 0.12);
+  }
+  .arch-box.primary { border-color: rgba(56, 189, 248, 0.4); }
+  .arch-box.primary:hover { border-color: rgba(56, 189, 248, 0.7); box-shadow: 0 8px 32px rgba(56, 189, 248, 0.18); }
+  .arch-box.standby { border-color: rgba(129, 140, 248, 0.4); }
+  .arch-box.standby:hover { border-color: rgba(129, 140, 248, 0.7); box-shadow: 0 8px 32px rgba(129, 140, 248, 0.18); }
+  .arch-box.observer {
+    grid-column: 1 / -1;
+    margin: 14px auto 0;
+    max-width: 680px;
+    width: 100%;
+    border-color: rgba(245, 158, 11, 0.4);
+    background: rgba(40, 30, 20, 0.55);
+    position: relative;
+  }
+  .arch-box.observer::before {
+    content: '';
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    width: 1px;
+    height: 14px;
+    background: linear-gradient(180deg, transparent, rgba(245, 158, 11, 0.5));
+  }
+  .arch-box.observer:hover {
+    background: rgba(55, 42, 26, 0.75);
+    border-color: rgba(245, 158, 11, 0.7);
+    box-shadow: 0 8px 32px rgba(245, 158, 11, 0.18);
+  }
+  .arch-title { font-weight: 600; font-size: 0.95rem; color: var(--accent); margin-bottom: 6px; }
+  .arch-box.primary .arch-title { color: #38bdf8; }
+  .arch-box.standby .arch-title { color: #a5b4fc; }
+  .arch-box.observer .arch-title { color: #fbbf24; }
+  .arch-desc { font-size: 0.78rem; color: var(--text-dim); line-height: 1.55; }
+  .arch-arrow { font-size: 1.6rem; color: var(--text-dim); text-align: center; user-select: none; }
+
+  /* Checklists */
+  .checklist-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 16px;
+  }
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    transition: background 0.2s, border-color 0.2s, transform 0.15s;
+    cursor: pointer;
+  }
+  .check-item:hover {
+    background: rgba(56, 189, 248, 0.06);
+    border-color: rgba(56, 189, 248, 0.15);
+    transform: translateX(2px);
+  }
+  .check-item input[type="checkbox"] {
+    margin-top: 3px;
+    flex-shrink: 0;
+    accent-color: var(--ok);
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+  }
+  .check-item label {
+    cursor: pointer;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: var(--text);
+  }
+  .check-item input:checked + label { color: var(--text-dim); text-decoration: line-through; }
+  code {
+    background: rgba(56, 189, 248, 0.12);
+    color: var(--accent);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-family: "Fira Code", "JetBrains Mono", Consolas, monospace;
+    font-size: 0.8em;
+  }
+
+  .card-title-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  .card-title-wrapper h2 { margin: 0; }
+  .count-badge {
+    background: rgba(56, 189, 248, 0.15);
+    color: var(--accent);
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  /* Timeline / Gantt */
+  .timeline-grid {
+    position: relative;
+    padding: 20px 0 30px;
+  }
+  .timeline-row {
+    display: grid;
+    grid-template-columns: 190px 1fr;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 0.8rem;
+  }
+  .timeline-phase-name { color: var(--text); font-weight: 500; }
+  .timeline-track {
+    position: relative;
+    height: 20px;
+    background: rgba(30, 40, 70, 0.4);
+    border-radius: 4px;
+  }
+  .timeline-bar {
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0b1020;
+    font-weight: 600;
+    font-size: 0.7rem;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    transition: filter 0.2s, transform 0.2s;
+    cursor: default;
+  }
+  .timeline-bar:hover {
+    filter: brightness(1.15);
+    transform: scaleY(1.15);
+  }
+  .timeline-axis {
+    display: grid;
+    grid-template-columns: 190px 1fr;
+    gap: 12px;
+    margin-top: 8px;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+  }
+  .timeline-weeks {
+    display: grid;
+    grid-template-columns: repeat(14, 1fr);
+    padding: 0 2px;
+  }
+  .timeline-weeks span { text-align: left; }
+
+  /* Risk matrix */
+  .risk-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+  }
+  .risk-card {
+    background: rgba(20, 28, 50, 0.6);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    position: relative;
+    cursor: default;
+    transition: background 0.25s, border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+  }
+  .risk-card:hover {
+    background: rgba(30, 42, 72, 0.75);
+    transform: translateY(-3px);
+  }
+  .risk-card:has(.risk-badge.high):hover {
+    border-color: rgba(239, 68, 68, 0.55);
+    box-shadow: 0 8px 32px rgba(239, 68, 68, 0.15);
+  }
+  .risk-card:has(.risk-badge.med):hover {
+    border-color: rgba(245, 158, 11, 0.55);
+    box-shadow: 0 8px 32px rgba(245, 158, 11, 0.15);
+  }
+  .risk-card:has(.risk-badge.low):hover {
+    border-color: rgba(34, 197, 94, 0.55);
+    box-shadow: 0 8px 32px rgba(34, 197, 94, 0.15);
+  }
+  .risk-id { font-size: 0.7rem; color: var(--text-dim); font-weight: 600; letter-spacing: 0.08em; }
+  .risk-title { font-size: 0.95rem; font-weight: 600; margin: 4px 0 8px; color: var(--text); }
+  .risk-desc { font-size: 0.78rem; color: var(--text-dim); line-height: 1.5; margin-bottom: 10px; }
+  .risk-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .risk-badge.high { background: rgba(239, 68, 68, 0.2); color: var(--high); border: 1px solid rgba(239, 68, 68, 0.3); }
+  .risk-badge.med { background: rgba(245, 158, 11, 0.2); color: var(--med); border: 1px solid rgba(245, 158, 11, 0.3); }
+  .risk-badge.low { background: rgba(34, 197, 94, 0.2); color: var(--low); border: 1px solid rgba(34, 197, 94, 0.3); }
+
+  .card-icon { margin-right: 6px; }
+
+  /* Footer */
+  .footer {
+    margin-top: 32px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    color: var(--text-dim);
+    font-size: 0.75rem;
+    text-align: center;
+  }
+  .footer a { color: var(--accent); text-decoration: none; margin: 0 8px; }
+  .footer a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>FSFO + TAC Deployment Checklist</h1>
+    <div class="subtitle">Oracle 19c • 3-site topology (DC / DR / EXT) • Author: KCB Kris • v1.0 (2026-04-23)</div>
+  </div>
+  <div class="header-actions">
+    <button class="btn-reset" onclick="resetAll()">Reset checklist</button>
+    <ul class="lang-switch">
+      <a href="checklist.html" class="lang active">🇬🇧 EN</a>
+      <span class="lang-sep">|</span>
+      <a href="checklist_PL.html" class="lang">🇵🇱 PL</a>
+    </ul>
+  </div>
+</div>
+
+<div class="progress-section">
+  <div class="progress-label">
+    <span>Overall Progress</span>
+    <span><span id="checkedCount">0</span> / <span id="totalCount">0</span> (<span id="pctProgress">0</span>%)</span>
+  </div>
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+</div>
+
+<!-- Architecture Overview -->
+<div class="card">
+  <h2><span class="card-icon">🏛️</span>Architecture Overview</h2>
+  <div class="arch-grid">
+    <div class="arch-box">
+      <div class="arch-title">App Server</div>
+      <div class="arch-desc">
+        UCP Pool + FAN listener<br>
+        JDBC 19c+ with replay support
+      </div>
+    </div>
+    <div class="arch-arrow">→</div>
+    <div class="arch-box primary">
+      <div class="arch-title">Primary RAC (DC)</div>
+      <div class="arch-desc">
+        2 nodes + TAC Service<br>
+        DB: <code>PRIM</code> · :1521
+      </div>
+    </div>
+    <div class="arch-arrow">⇌</div>
+    <div class="arch-box standby">
+      <div class="arch-title">Standby RAC (DR)</div>
+      <div class="arch-desc">
+        2 nodes · FSFO target<br>
+        DB: <code>STBY</code> · PHYSICAL_STANDBY
+      </div>
+    </div>
+    <div class="arch-box observer">
+      <div class="arch-title">★ FSFO Observer HA (3 sites) ★</div>
+      <div class="arch-desc">
+        Master: <code>obs_ext</code> (EXT — dedicated host) ·
+        Backup: <code>obs_dc</code> (DC) ·
+        Backup: <code>obs_dr</code> (DR)<br>
+        dgmgrl + systemd + Oracle Wallet per-site
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Checklists: FSFO + TAC -->
+<div class="checklist-row">
+
+  <!-- FSFO Checklist -->
+  <div class="card">
+    <div class="card-title-wrapper">
+      <h2><span class="card-icon">🔄</span>FSFO Checklist</h2>
+      <span class="count-badge" id="fsfoCount">0/15</span>
+    </div>
+    <div data-section="fsfo">
+      <div class="check-item"><input type="checkbox" id="f01"><label for="f01">DG Broker enabled (<code>dg_broker_start=TRUE</code>) on all databases</label></div>
+      <div class="check-item"><input type="checkbox" id="f02"><label for="f02">Broker configuration created and enabled (<code>SHOW CONFIGURATION</code> = SUCCESS)</label></div>
+      <div class="check-item"><input type="checkbox" id="f03"><label for="f03">Redo transport — no errors, no gaps (<code>V$ARCHIVE_GAP</code> empty)</label></div>
+      <div class="check-item"><input type="checkbox" id="f04"><label for="f04">Standby Redo Logs (size = ORL, groups = threads × (groups+1))</label></div>
+      <div class="check-item"><input type="checkbox" id="f05"><label for="f05">Protection mode: <code>MAX AVAILABILITY</code> (SYNC + AFFIRM)</label></div>
+      <div class="check-item"><input type="checkbox" id="f06"><label for="f06">Force Logging enabled on both PRIM and STBY</label></div>
+      <div class="check-item"><input type="checkbox" id="f07"><label for="f07">Flashback Database ON (for AutoReinstate)</label></div>
+      <div class="check-item"><input type="checkbox" id="f08"><label for="f08">FSFO properties set (<code>Threshold=30</code>, <code>LagLimit=30</code>, <code>AutoReinstate=TRUE</code>)</label></div>
+      <div class="check-item"><input type="checkbox" id="f09"><label for="f09">FSFO target configured (bi-directional role-aware)</label></div>
+      <div class="check-item"><input type="checkbox" id="f10"><label for="f10">Observer deployed on dedicated host (EXT — third site)</label></div>
+      <div class="check-item"><input type="checkbox" id="f11"><label for="f11">Observer systemd unit configured (auto-restart on-failure)</label></div>
+      <div class="check-item"><input type="checkbox" id="f12"><label for="f12">FSFO enabled (<code>ENABLE FAST_START FAILOVER</code>)</label></div>
+      <div class="check-item"><input type="checkbox" id="f13"><label for="f13">Manual switchover tested (both directions, round-trip ≤ 2 min)</label></div>
+      <div class="check-item"><input type="checkbox" id="f14"><label for="f14">Automatic failover tested (pre-prod, RTO ≤ 45 s)</label></div>
+      <div class="check-item"><input type="checkbox" id="f15"><label for="f15">Observer HA: 3 Observers deployed (EXT=master, DC/DR=backup)</label></div>
+    </div>
+  </div>
+
+  <!-- TAC Checklist -->
+  <div class="card">
+    <div class="card-title-wrapper">
+      <h2><span class="card-icon">🔁</span>TAC Checklist</h2>
+      <span class="count-badge" id="tacCount">0/15</span>
+    </div>
+    <div data-section="tac">
+      <div class="check-item"><input type="checkbox" id="t01"><label for="t01">Oracle 19c+ verified on all databases</label></div>
+      <div class="check-item"><input type="checkbox" id="t02"><label for="t02">TAC service created (<code>failover_type=TRANSACTION</code>)</label></div>
+      <div class="check-item"><input type="checkbox" id="t03"><label for="t03"><code>commit_outcome=TRUE</code>, <code>retention_timeout=86400</code></label></div>
+      <div class="check-item"><input type="checkbox" id="t04"><label for="t04"><code>session_state_consistency=DYNAMIC</code></label></div>
+      <div class="check-item"><input type="checkbox" id="t05"><label for="t05">Drain timeout configured (<code>drain_timeout=300</code> recommended)</label></div>
+      <div class="check-item"><input type="checkbox" id="t06"><label for="t06">Transaction Guard available (<code>DBMS_APP_CONT</code> package VALID)</label></div>
+      <div class="check-item"><input type="checkbox" id="t07"><label for="t07">JDBC drivers upgraded to 19c+ (<code>ojdbc11.jar</code> / <code>ojdbc8.jar</code>)</label></div>
+      <div class="check-item"><input type="checkbox" id="t08"><label for="t08">UCP pool configured with <code>FastConnectionFailoverEnabled=true</code></label></div>
+      <div class="check-item"><input type="checkbox" id="t09"><label for="t09"><code>ONSConfiguration</code> set in UCP pool</label></div>
+      <div class="check-item"><input type="checkbox" id="t10"><label for="t10">ONS running on all RAC nodes (<code>srvctl status ons</code>)</label></div>
+      <div class="check-item"><input type="checkbox" id="t11"><label for="t11">Cross-site ONS configured (<code>srvctl modify ons -remoteservers</code>)</label></div>
+      <div class="check-item"><input type="checkbox" id="t12"><label for="t12">Firewall port 6200 open between all RAC nodes + app servers</label></div>
+      <div class="check-item"><input type="checkbox" id="t13"><label for="t13">Role-based service autostart configured (PRIMARY + PHYSICAL_STANDBY)</label></div>
+      <div class="check-item"><input type="checkbox" id="t14"><label for="t14">TNS with dual <code>ADDRESS_LIST</code> + <code>FAILOVER=ON</code></label></div>
+      <div class="check-item"><input type="checkbox" id="t15"><label for="t15">Non-replayable operations removed from TX path (ALTER SESSION, UTL_HTTP, etc.)</label></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Integration Checklist -->
+<div class="card">
+  <div class="card-title-wrapper">
+    <h2><span class="card-icon">🔗</span>Integration Checklist (FSFO + TAC Combined)</h2>
+    <span class="count-badge" id="intgCount">0/8</span>
+  </div>
+  <div class="checklist-row" data-section="intg">
+    <div>
+      <div class="check-item"><input type="checkbox" id="i01"><label for="i01">FSFO automatic failover triggers FAN events</label></div>
+      <div class="check-item"><input type="checkbox" id="i02"><label for="i02">FAN events reach UCP pool after switchover</label></div>
+      <div class="check-item"><input type="checkbox" id="i03"><label for="i03">TAC replay succeeds after switchover</label></div>
+      <div class="check-item"><input type="checkbox" id="i04"><label for="i04">End-to-end failover time &lt; 60 seconds</label></div>
+    </div>
+    <div>
+      <div class="check-item"><input type="checkbox" id="i05"><label for="i05">Zero data loss verified after failover (RPO = 0)</label></div>
+      <div class="check-item"><input type="checkbox" id="i06"><label for="i06">No duplicate transactions after replay</label></div>
+      <div class="check-item"><input type="checkbox" id="i07"><label for="i07">Planned switchover with FSFO-aware — tested</label></div>
+      <div class="check-item"><input type="checkbox" id="i08"><label for="i08">Reinstatement + FSFO re-enable — tested</label></div>
+    </div>
+  </div>
+</div>
+
+<!-- Deployment Timeline -->
+<div class="card">
+  <h2><span class="card-icon">📅</span>Deployment Timeline (6 Phases, ~13 Weeks)</h2>
+  <div class="timeline-grid">
+    <div class="timeline-row">
+      <div class="timeline-phase-name">Phase 0: Diagnostics</div>
+      <div class="timeline-track">
+        <div class="timeline-bar" style="left: 0%; width: 7.1%; background: var(--phase0);">W1</div>
+      </div>
+    </div>
+    <div class="timeline-row">
+      <div class="timeline-phase-name">Phase 1: DG Broker</div>
+      <div class="timeline-track">
+        <div class="timeline-bar" style="left: 7.1%; width: 14.3%; background: var(--phase1);">W2-3</div>
+      </div>
+    </div>
+    <div class="timeline-row">
+      <div class="timeline-phase-name">Phase 2: FSFO + Observer</div>
+      <div class="timeline-track">
+        <div class="timeline-bar" style="left: 21.4%; width: 14.3%; background: var(--phase2);">W4-5</div>
+      </div>
+    </div>
+    <div class="timeline-row">
+      <div class="timeline-phase-name">Phase 3: TAC Service Config</div>
+      <div class="timeline-track">
+        <div class="timeline-bar" style="left: 35.7%; width: 7.1%; background: var(--phase3);">W6</div>
+      </div>
+    </div>
+    <div class="timeline-row">
+      <div class="timeline-phase-name">Phase 4: UCP + FAN</div>
+      <div class="timeline-track">
+        <div class="timeline-bar" style="left: 42.8%; width: 21.4%; background: var(--phase4);">W7-9</div>
+      </div>
+    </div>
+    <div class="timeline-row">
+      <div class="timeline-phase-name">Phase 5: Integration Testing</div>
+      <div class="timeline-track">
+        <div class="timeline-bar" style="left: 64.3%; width: 28.6%; background: var(--phase5);">W10-13</div>
+      </div>
+    </div>
+    <div class="timeline-row">
+      <div class="timeline-phase-name">Phase 6: Go-Live + Monitor</div>
+      <div class="timeline-track">
+        <div class="timeline-bar" style="left: 92.9%; width: 7.1%; background: var(--phase6);">W14+</div>
+      </div>
+    </div>
+    <div class="timeline-axis">
+      <div></div>
+      <div class="timeline-weeks">
+        <span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span>
+        <span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span>
+      </div>
+    </div>
+    <div class="timeline-axis">
+      <div style="text-align: right; font-weight: 600;">Weeks →</div>
+      <div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Risk Matrix -->
+<div class="card">
+  <h2><span class="card-icon">⚠️</span>Risk Matrix</h2>
+  <div class="risk-grid">
+
+    <div class="risk-card">
+      <div class="risk-id">R1</div>
+      <div class="risk-title">Observer SPOF</div>
+      <div class="risk-desc">Single observer is a SPOF. Deploy multiple observers (3× HA) across DC/DR/EXT; ensure systemd auto-restart.</div>
+      <span class="risk-badge high">HIGH</span>
+    </div>
+
+    <div class="risk-card">
+      <div class="risk-id">R2</div>
+      <div class="risk-title">Network Partition</div>
+      <div class="risk-desc">Split-brain risk if observer cannot reach both sites. Place master observer on third network (EXT) — independent path.</div>
+      <span class="risk-badge high">HIGH</span>
+    </div>
+
+    <div class="risk-card">
+      <div class="risk-id">R3</div>
+      <div class="risk-title">Reinstate Failure</div>
+      <div class="risk-desc">Old primary may fail to reinstate if Flashback not enabled. Enable Flashback Database on both PRIM and STBY; size FRA appropriately.</div>
+      <span class="risk-badge med">MED</span>
+    </div>
+
+    <div class="risk-card">
+      <div class="risk-id">R4</div>
+      <div class="risk-title">Lag Limit Exceeded</div>
+      <div class="risk-desc">Apply lag &gt; <code>LagLimit</code> disables FSFO auto-failover. Monitor lag continuously; alert at 50% threshold (15 s).</div>
+      <span class="risk-badge med">MED</span>
+    </div>
+
+    <div class="risk-card">
+      <div class="risk-id">R5</div>
+      <div class="risk-title">Non-replayable Ops</div>
+      <div class="risk-desc"><code>ALTER SESSION</code>, <code>UTL_HTTP</code>, <code>UTL_SMTP</code>, DDL inside TX break TAC replay. Code review required; move external calls outside transactions.</div>
+      <span class="risk-badge high">HIGH</span>
+    </div>
+
+    <div class="risk-card">
+      <div class="risk-id">R6</div>
+      <div class="risk-title">Old JDBC Drivers</div>
+      <div class="risk-desc">Pre-19c JDBC drivers cannot use TAC. Upgrade all clients to 19c+ <code>ojdbc11.jar</code>; verify in <code>V$SESSION_CONNECT_INFO</code>.</div>
+      <span class="risk-badge med">MED</span>
+    </div>
+
+    <div class="risk-card">
+      <div class="risk-id">R7</div>
+      <div class="risk-title">FAN Port Blocked</div>
+      <div class="risk-desc">Firewall blocking ONS port 6200 prevents FAN events delivery. Open cross-site (DC↔DR) + app→RAC before go-live.</div>
+      <span class="risk-badge med">MED</span>
+    </div>
+
+    <div class="risk-card">
+      <div class="risk-id">R8</div>
+      <div class="risk-title">Performance Impact</div>
+      <div class="risk-desc">Commit outcome tracking adds ~3% overhead (LTXID table writes). Benchmark before production; verify SLA margins.</div>
+      <span class="risk-badge low">LOW</span>
+    </div>
+
+  </div>
+</div>
+
+<div class="footer">
+  <div>
+    <a href="README.md">README.md</a>
+    <a href="docs/DESIGN.md">DESIGN.md</a>
+    <a href="docs/PLAN.md">PLAN.md</a>
+    <a href="docs/FSFO-GUIDE.md">FSFO-GUIDE.md</a>
+    <a href="docs/TAC-GUIDE.md">TAC-GUIDE.md</a>
+    <a href="docs/INTEGRATION-GUIDE.md">INTEGRATION-GUIDE.md</a>
+  </div>
+  <div style="margin-top: 8px;">Checklist state is stored in your browser's <code>localStorage</code> (only you can see it).</div>
+</div>
+
+<script>
+  const STORAGE_KEY = 'fsfo-tac-checklist-v1';
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return {};
+      return JSON.parse(raw);
+    } catch (e) { return {}; }
+  }
+
+  function saveState(state) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+  }
+
+  function updateCounts() {
+    const sections = ['fsfo', 'tac', 'intg'];
+    const sectionIds = { fsfo: 'fsfoCount', tac: 'tacCount', intg: 'intgCount' };
+
+    sections.forEach(s => {
+      const container = document.querySelector(`[data-section="${s}"]`);
+      if (!container) return;
+      const boxes = container.querySelectorAll('input[type="checkbox"]');
+      const checked = Array.from(boxes).filter(b => b.checked).length;
+      const el = document.getElementById(sectionIds[s]);
+      if (el) el.textContent = `${checked}/${boxes.length}`;
+    });
+
+    const all = document.querySelectorAll('input[type="checkbox"]');
+    const allChecked = Array.from(all).filter(b => b.checked).length;
+    document.getElementById('checkedCount').textContent = allChecked;
+    document.getElementById('totalCount').textContent = all.length;
+    const pct = all.length > 0 ? Math.round((allChecked / all.length) * 100) : 0;
+    document.getElementById('pctProgress').textContent = pct;
+    document.getElementById('progressFill').style.width = pct + '%';
+  }
+
+  function init() {
+    const state = loadState();
+    const boxes = document.querySelectorAll('input[type="checkbox"]');
+    boxes.forEach(b => {
+      if (state[b.id]) b.checked = true;
+      b.addEventListener('change', () => {
+        const s = loadState();
+        s[b.id] = b.checked;
+        saveState(s);
+        updateCounts();
+      });
+    });
+    updateCounts();
+  }
+
+  function resetAll() {
+    if (!confirm('Reset all checklist checkboxes?')) return;
+    localStorage.removeItem(STORAGE_KEY);
+    document.querySelectorAll('input[type="checkbox"]').forEach(b => b.checked = false);
+    updateCounts();
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+</script>
+
+</body>
+</html>
