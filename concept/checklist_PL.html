@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="author" content="KCB Kris">
-<meta name="description" content="FSFO + TAC Deployment Checklist — Oracle 19c 3-site architecture (DC/DR/EXT)">
-<title>FSFO + TAC Deployment Checklist — Oracle 19c</title>
+<meta name="description" content="Lista kontrolna wdrożenia FSFO + TAC — architektura 3-site Oracle 19c (DC/DR/EXT)">
+<title>Lista kontrolna wdrożenia FSFO + TAC — Oracle 19c</title>
 <style>
   :root {
     --bg: #0b1020;
@@ -364,8 +364,8 @@
 
 <div class="header">
   <div>
-    <h1>FSFO + TAC Deployment Checklist</h1>
-    <div class="subtitle">Oracle 19c • 3-site topology (DC / DR / EXT) • Author: KCB Kris • v1.0 (2026-04-23)</div>
+    <h1>Lista kontrolna wdrożenia FSFO + TAC</h1>
+    <div class="subtitle">Oracle 19c • topologia 3-site (DC / DR / EXT) • Autor: KCB Kris • v1.0 (2026-04-23)</div>
   </div>
   <div class="header-actions">
     <button class="btn-reset" onclick="resetAll()">Reset checklisty</button>
@@ -379,7 +379,7 @@
 
 <div class="progress-section">
   <div class="progress-label">
-    <span>Overall Progress</span>
+    <span>Postęp ogólny</span>
     <span><span id="checkedCount">0</span> / <span id="totalCount">0</span> (<span id="pctProgress">0</span>%)</span>
   </div>
   <div class="progress-bar">
@@ -389,20 +389,20 @@
 
 <!-- Architecture Overview -->
 <div class="card">
-  <h2><span class="card-icon">🏛️</span>Architecture Overview</h2>
+  <h2><span class="card-icon">🏛️</span>Przegląd architektury</h2>
   <div class="arch-grid">
     <div class="arch-box">
-      <div class="arch-title">App Server</div>
+      <div class="arch-title">Serwer aplikacyjny</div>
       <div class="arch-desc">
         UCP Pool + FAN listener<br>
-        JDBC 19c+ z replay support
+        JDBC 19c+ ze wsparciem replay
       </div>
     </div>
     <div class="arch-arrow">→</div>
     <div class="arch-box primary">
       <div class="arch-title">Primary RAC (DC)</div>
       <div class="arch-desc">
-        2 nodes + TAC Service<br>
+        2 węzły + TAC Service<br>
         DB: <code>PRIM</code> · :1521
       </div>
     </div>
@@ -410,14 +410,14 @@
     <div class="arch-box standby">
       <div class="arch-title">Standby RAC (DR)</div>
       <div class="arch-desc">
-        2 nodes · FSFO target<br>
+        2 węzły · cel FSFO<br>
         DB: <code>STBY</code> · PHYSICAL_STANDBY
       </div>
     </div>
     <div class="arch-box observer">
-      <div class="arch-title">★ FSFO Observer HA (3 sites) ★</div>
+      <div class="arch-title">★ FSFO Observer HA (3 lokalizacje) ★</div>
       <div class="arch-desc">
-        Master: <code>obs_ext</code> (EXT — dedicated host) ·
+        Master: <code>obs_ext</code> (EXT — dedykowany host) ·
         Backup: <code>obs_dc</code> (DC) ·
         Backup: <code>obs_dr</code> (DR)<br>
         dgmgrl + systemd + Oracle Wallet per-site
@@ -432,50 +432,50 @@
   <!-- FSFO Checklist -->
   <div class="card">
     <div class="card-title-wrapper">
-      <h2><span class="card-icon">🔄</span>FSFO Checklist</h2>
+      <h2><span class="card-icon">🔄</span>Lista kontrolna FSFO</h2>
       <span class="count-badge" id="fsfoCount">0/15</span>
     </div>
     <div data-section="fsfo">
-      <div class="check-item"><input type="checkbox" id="f01"><label for="f01">DG Broker enabled (<code>dg_broker_start=TRUE</code>) on all databases</label></div>
-      <div class="check-item"><input type="checkbox" id="f02"><label for="f02">Broker configuration created and enabled (<code>SHOW CONFIGURATION</code> = SUCCESS)</label></div>
-      <div class="check-item"><input type="checkbox" id="f03"><label for="f03">Redo transport — no errors, no gaps (<code>V$ARCHIVE_GAP</code> empty)</label></div>
-      <div class="check-item"><input type="checkbox" id="f04"><label for="f04">Standby Redo Logs (size = ORL, groups = threads × (groups+1))</label></div>
-      <div class="check-item"><input type="checkbox" id="f05"><label for="f05">Protection mode: <code>MAX AVAILABILITY</code> (SYNC + AFFIRM)</label></div>
-      <div class="check-item"><input type="checkbox" id="f06"><label for="f06">Force Logging enabled on both PRIM and STBY</label></div>
+      <div class="check-item"><input type="checkbox" id="f01"><label for="f01">DG Broker włączony (<code>dg_broker_start=TRUE</code>) na wszystkich bazach</label></div>
+      <div class="check-item"><input type="checkbox" id="f02"><label for="f02">Konfiguracja Brokera utworzona i włączona (<code>SHOW CONFIGURATION</code> = SUCCESS)</label></div>
+      <div class="check-item"><input type="checkbox" id="f03"><label for="f03">Transport redo — brak błędów, brak luk (<code>V$ARCHIVE_GAP</code> pusty)</label></div>
+      <div class="check-item"><input type="checkbox" id="f04"><label for="f04">Standby Redo Logs (rozmiar = ORL, liczba grup = threads × (groups+1))</label></div>
+      <div class="check-item"><input type="checkbox" id="f05"><label for="f05">Tryb ochrony: <code>MAX AVAILABILITY</code> (SYNC + AFFIRM)</label></div>
+      <div class="check-item"><input type="checkbox" id="f06"><label for="f06">Force Logging włączony na PRIM i STBY</label></div>
       <div class="check-item"><input type="checkbox" id="f07"><label for="f07">Flashback Database ON (dla AutoReinstate)</label></div>
-      <div class="check-item"><input type="checkbox" id="f08"><label for="f08">FSFO properties set (<code>Threshold=30</code>, <code>LagLimit=30</code>, <code>AutoReinstate=TRUE</code>)</label></div>
-      <div class="check-item"><input type="checkbox" id="f09"><label for="f09">FSFO target configured (bi-directional role-aware)</label></div>
-      <div class="check-item"><input type="checkbox" id="f10"><label for="f10">Observer deployed on dedicated host (EXT — third site)</label></div>
-      <div class="check-item"><input type="checkbox" id="f11"><label for="f11">Observer systemd unit configured (auto-restart on-failure)</label></div>
-      <div class="check-item"><input type="checkbox" id="f12"><label for="f12">FSFO enabled (<code>ENABLE FAST_START FAILOVER</code>)</label></div>
-      <div class="check-item"><input type="checkbox" id="f13"><label for="f13">Manual switchover tested (both directions, round-trip ≤ 2 min)</label></div>
-      <div class="check-item"><input type="checkbox" id="f14"><label for="f14">Automatic failover tested (pre-prod, RTO ≤ 45 s)</label></div>
-      <div class="check-item"><input type="checkbox" id="f15"><label for="f15">Observer HA: 3 Observers deployed (EXT=master, DC/DR=backup)</label></div>
+      <div class="check-item"><input type="checkbox" id="f08"><label for="f08">Właściwości FSFO ustawione (<code>Threshold=30</code>, <code>LagLimit=30</code>, <code>AutoReinstate=TRUE</code>)</label></div>
+      <div class="check-item"><input type="checkbox" id="f09"><label for="f09">Cel FSFO skonfigurowany (dwukierunkowo, świadomy roli)</label></div>
+      <div class="check-item"><input type="checkbox" id="f10"><label for="f10">Observer wdrożony na dedykowanym hoście (EXT — trzecia lokalizacja)</label></div>
+      <div class="check-item"><input type="checkbox" id="f11"><label for="f11">Jednostka systemd dla Observera skonfigurowana (auto-restart on-failure)</label></div>
+      <div class="check-item"><input type="checkbox" id="f12"><label for="f12">FSFO włączony (<code>ENABLE FAST_START FAILOVER</code>)</label></div>
+      <div class="check-item"><input type="checkbox" id="f13"><label for="f13">Ręczny switchover przetestowany (oba kierunki, round-trip ≤ 2 min)</label></div>
+      <div class="check-item"><input type="checkbox" id="f14"><label for="f14">Automatyczny failover przetestowany (pre-prod, RTO ≤ 45 s)</label></div>
+      <div class="check-item"><input type="checkbox" id="f15"><label for="f15">Observer HA: 3 Observery wdrożone (EXT=master, DC/DR=backup)</label></div>
     </div>
   </div>
 
   <!-- TAC Checklist -->
   <div class="card">
     <div class="card-title-wrapper">
-      <h2><span class="card-icon">🔁</span>TAC Checklist</h2>
+      <h2><span class="card-icon">🔁</span>Lista kontrolna TAC</h2>
       <span class="count-badge" id="tacCount">0/15</span>
     </div>
     <div data-section="tac">
-      <div class="check-item"><input type="checkbox" id="t01"><label for="t01">Oracle 19c+ verified on all databases</label></div>
-      <div class="check-item"><input type="checkbox" id="t02"><label for="t02">TAC service created (<code>failover_type=TRANSACTION</code>)</label></div>
+      <div class="check-item"><input type="checkbox" id="t01"><label for="t01">Oracle 19c+ zweryfikowany na wszystkich bazach</label></div>
+      <div class="check-item"><input type="checkbox" id="t02"><label for="t02">Serwis TAC utworzony (<code>failover_type=TRANSACTION</code>)</label></div>
       <div class="check-item"><input type="checkbox" id="t03"><label for="t03"><code>commit_outcome=TRUE</code>, <code>retention_timeout=86400</code></label></div>
       <div class="check-item"><input type="checkbox" id="t04"><label for="t04"><code>session_state_consistency=DYNAMIC</code></label></div>
-      <div class="check-item"><input type="checkbox" id="t05"><label for="t05">Drain timeout configured (<code>drain_timeout=300</code> recommended)</label></div>
-      <div class="check-item"><input type="checkbox" id="t06"><label for="t06">Transaction Guard available (<code>DBMS_APP_CONT</code> package VALID)</label></div>
-      <div class="check-item"><input type="checkbox" id="t07"><label for="t07">JDBC drivers upgraded to 19c+ (<code>ojdbc11.jar</code> / <code>ojdbc8.jar</code>)</label></div>
-      <div class="check-item"><input type="checkbox" id="t08"><label for="t08">UCP pool configured with <code>FastConnectionFailoverEnabled=true</code></label></div>
-      <div class="check-item"><input type="checkbox" id="t09"><label for="t09"><code>ONSConfiguration</code> set in UCP pool</label></div>
-      <div class="check-item"><input type="checkbox" id="t10"><label for="t10">ONS running on all RAC nodes (<code>srvctl status ons</code>)</label></div>
-      <div class="check-item"><input type="checkbox" id="t11"><label for="t11">Cross-site ONS configured (<code>srvctl modify ons -remoteservers</code>)</label></div>
-      <div class="check-item"><input type="checkbox" id="t12"><label for="t12">Firewall port 6200 open between all RAC nodes + app servers</label></div>
-      <div class="check-item"><input type="checkbox" id="t13"><label for="t13">Role-based service autostart configured (PRIMARY + PHYSICAL_STANDBY)</label></div>
-      <div class="check-item"><input type="checkbox" id="t14"><label for="t14">TNS with dual <code>ADDRESS_LIST</code> + <code>FAILOVER=ON</code></label></div>
-      <div class="check-item"><input type="checkbox" id="t15"><label for="t15">Non-replayable operations removed from TX path (ALTER SESSION, UTL_HTTP itp.)</label></div>
+      <div class="check-item"><input type="checkbox" id="t05"><label for="t05">Drain timeout skonfigurowany (zalecane <code>drain_timeout=300</code>)</label></div>
+      <div class="check-item"><input type="checkbox" id="t06"><label for="t06">Transaction Guard dostępne (pakiet <code>DBMS_APP_CONT</code> w stanie VALID)</label></div>
+      <div class="check-item"><input type="checkbox" id="t07"><label for="t07">Sterowniki JDBC zaktualizowane do 19c+ (<code>ojdbc11.jar</code> / <code>ojdbc8.jar</code>)</label></div>
+      <div class="check-item"><input type="checkbox" id="t08"><label for="t08">Pool UCP skonfigurowany z <code>FastConnectionFailoverEnabled=true</code></label></div>
+      <div class="check-item"><input type="checkbox" id="t09"><label for="t09"><code>ONSConfiguration</code> ustawione w poolu UCP</label></div>
+      <div class="check-item"><input type="checkbox" id="t10"><label for="t10">ONS uruchomione na wszystkich węzłach RAC (<code>srvctl status ons</code>)</label></div>
+      <div class="check-item"><input type="checkbox" id="t11"><label for="t11">Cross-site ONS skonfigurowane (<code>srvctl modify ons -remoteservers</code>)</label></div>
+      <div class="check-item"><input type="checkbox" id="t12"><label for="t12">Port 6200 firewalla otwarty między wszystkimi węzłami RAC + serwerami aplikacyjnymi</label></div>
+      <div class="check-item"><input type="checkbox" id="t13"><label for="t13">Autostart serwisu wg roli skonfigurowany (PRIMARY + PHYSICAL_STANDBY)</label></div>
+      <div class="check-item"><input type="checkbox" id="t14"><label for="t14">TNS z podwójnym <code>ADDRESS_LIST</code> + <code>FAILOVER=ON</code></label></div>
+      <div class="check-item"><input type="checkbox" id="t15"><label for="t15">Operacje nie podlegające replay usunięte ze ścieżki TX (ALTER SESSION, UTL_HTTP itp.)</label></div>
     </div>
   </div>
 
@@ -484,67 +484,67 @@
 <!-- Integration Checklist -->
 <div class="card">
   <div class="card-title-wrapper">
-    <h2><span class="card-icon">🔗</span>Integration Checklist (FSFO + TAC Combined)</h2>
+    <h2><span class="card-icon">🔗</span>Lista kontrolna integracji (FSFO + TAC łącznie)</h2>
     <span class="count-badge" id="intgCount">0/8</span>
   </div>
   <div class="checklist-row" data-section="intg">
     <div>
-      <div class="check-item"><input type="checkbox" id="i01"><label for="i01">FSFO automatic failover triggers FAN events</label></div>
-      <div class="check-item"><input type="checkbox" id="i02"><label for="i02">FAN events reach UCP pool after switchover</label></div>
-      <div class="check-item"><input type="checkbox" id="i03"><label for="i03">TAC replay succeeds after switchover</label></div>
-      <div class="check-item"><input type="checkbox" id="i04"><label for="i04">End-to-end failover time &lt; 60 seconds</label></div>
+      <div class="check-item"><input type="checkbox" id="i01"><label for="i01">Automatyczny failover FSFO wyzwala zdarzenia FAN</label></div>
+      <div class="check-item"><input type="checkbox" id="i02"><label for="i02">Zdarzenia FAN docierają do poola UCP po switchoverze</label></div>
+      <div class="check-item"><input type="checkbox" id="i03"><label for="i03">Replay TAC kończy się sukcesem po switchoverze</label></div>
+      <div class="check-item"><input type="checkbox" id="i04"><label for="i04">Czas failover end-to-end &lt; 60 sekund</label></div>
     </div>
     <div>
-      <div class="check-item"><input type="checkbox" id="i05"><label for="i05">Zero data loss verified after failover (RPO = 0)</label></div>
-      <div class="check-item"><input type="checkbox" id="i06"><label for="i06">No duplicate transactions after replay</label></div>
-      <div class="check-item"><input type="checkbox" id="i07"><label for="i07">Planned switchover with FSFO-aware — tested</label></div>
-      <div class="check-item"><input type="checkbox" id="i08"><label for="i08">Reinstatement + FSFO re-enable — tested</label></div>
+      <div class="check-item"><input type="checkbox" id="i05"><label for="i05">Brak utraty danych po failoverze zweryfikowany (RPO = 0)</label></div>
+      <div class="check-item"><input type="checkbox" id="i06"><label for="i06">Brak duplikatów transakcji po replay</label></div>
+      <div class="check-item"><input type="checkbox" id="i07"><label for="i07">Planowany switchover z obsługą FSFO — przetestowany</label></div>
+      <div class="check-item"><input type="checkbox" id="i08"><label for="i08">Reinstate + ponowne włączenie FSFO — przetestowane</label></div>
     </div>
   </div>
 </div>
 
 <!-- Deployment Timeline -->
 <div class="card">
-  <h2><span class="card-icon">📅</span>Deployment Timeline (6 Phases, ~13 Weeks)</h2>
+  <h2><span class="card-icon">📅</span>Harmonogram wdrożenia (6 faz, ~13 tygodni)</h2>
   <div class="timeline-grid">
     <div class="timeline-row">
-      <div class="timeline-phase-name">Phase 0: Diagnostics</div>
+      <div class="timeline-phase-name">Faza 0: Diagnostyka</div>
       <div class="timeline-track">
         <div class="timeline-bar" style="left: 0%; width: 7.1%; background: var(--phase0);">W1</div>
       </div>
     </div>
     <div class="timeline-row">
-      <div class="timeline-phase-name">Phase 1: DG Broker</div>
+      <div class="timeline-phase-name">Faza 1: DG Broker</div>
       <div class="timeline-track">
         <div class="timeline-bar" style="left: 7.1%; width: 14.3%; background: var(--phase1);">W2-3</div>
       </div>
     </div>
     <div class="timeline-row">
-      <div class="timeline-phase-name">Phase 2: FSFO + Observer</div>
+      <div class="timeline-phase-name">Faza 2: FSFO + Observer</div>
       <div class="timeline-track">
         <div class="timeline-bar" style="left: 21.4%; width: 14.3%; background: var(--phase2);">W4-5</div>
       </div>
     </div>
     <div class="timeline-row">
-      <div class="timeline-phase-name">Phase 3: TAC Service Config</div>
+      <div class="timeline-phase-name">Faza 3: Konfiguracja TAC Service</div>
       <div class="timeline-track">
         <div class="timeline-bar" style="left: 35.7%; width: 7.1%; background: var(--phase3);">W6</div>
       </div>
     </div>
     <div class="timeline-row">
-      <div class="timeline-phase-name">Phase 4: UCP + FAN</div>
+      <div class="timeline-phase-name">Faza 4: UCP + FAN</div>
       <div class="timeline-track">
         <div class="timeline-bar" style="left: 42.8%; width: 21.4%; background: var(--phase4);">W7-9</div>
       </div>
     </div>
     <div class="timeline-row">
-      <div class="timeline-phase-name">Phase 5: Integration Testing</div>
+      <div class="timeline-phase-name">Faza 5: Testy integracyjne</div>
       <div class="timeline-track">
         <div class="timeline-bar" style="left: 64.3%; width: 28.6%; background: var(--phase5);">W10-13</div>
       </div>
     </div>
     <div class="timeline-row">
-      <div class="timeline-phase-name">Phase 6: Go-Live + Monitor</div>
+      <div class="timeline-phase-name">Faza 6: Go-Live + monitoring</div>
       <div class="timeline-track">
         <div class="timeline-bar" style="left: 92.9%; width: 7.1%; background: var(--phase6);">W14+</div>
       </div>
@@ -557,7 +557,7 @@
       </div>
     </div>
     <div class="timeline-axis">
-      <div style="text-align: right; font-weight: 600;">Weeks →</div>
+      <div style="text-align: right; font-weight: 600;">Tygodnie →</div>
       <div></div>
     </div>
   </div>
@@ -565,62 +565,62 @@
 
 <!-- Risk Matrix -->
 <div class="card">
-  <h2><span class="card-icon">⚠️</span>Risk Matrix</h2>
+  <h2><span class="card-icon">⚠️</span>Macierz ryzyk</h2>
   <div class="risk-grid">
 
     <div class="risk-card">
       <div class="risk-id">R1</div>
-      <div class="risk-title">Observer SPOF</div>
-      <div class="risk-desc">Single observer is a SPOF. Deploy multiple observers (3× HA) across DC/DR/EXT; ensure systemd auto-restart.</div>
+      <div class="risk-title">Observer jako SPOF</div>
+      <div class="risk-desc">Pojedynczy Observer to SPOF. Wdrożyć wiele Observerów (3× HA) w DC/DR/EXT; zapewnić auto-restart przez systemd.</div>
       <span class="risk-badge high">HIGH</span>
     </div>
 
     <div class="risk-card">
       <div class="risk-id">R2</div>
-      <div class="risk-title">Network Partition</div>
-      <div class="risk-desc">Split-brain risk if observer cannot reach both sites. Place master observer on third network (EXT) — independent path.</div>
+      <div class="risk-title">Podział sieci (network partition)</div>
+      <div class="risk-desc">Ryzyko split-brain, jeśli Observer nie widzi obu lokalizacji. Umieścić Observera master w trzeciej sieci (EXT) — niezależna ścieżka.</div>
       <span class="risk-badge high">HIGH</span>
     </div>
 
     <div class="risk-card">
       <div class="risk-id">R3</div>
-      <div class="risk-title">Reinstate Failure</div>
-      <div class="risk-desc">Old primary may fail to reinstate if Flashback not enabled. Enable Flashback Database on both PRIM and STBY; size FRA appropriately.</div>
+      <div class="risk-title">Niepowodzenie reinstate</div>
+      <div class="risk-desc">Stary primary może nie zostać reinstateowany bez Flashbacka. Włączyć Flashback Database na PRIM i STBY; odpowiednio zwymiarować FRA.</div>
       <span class="risk-badge med">MED</span>
     </div>
 
     <div class="risk-card">
       <div class="risk-id">R4</div>
-      <div class="risk-title">Lag Limit Exceeded</div>
-      <div class="risk-desc">Apply lag &gt; <code>LagLimit</code> disables FSFO auto-failover. Monitor lag continuously; alert at 50% threshold (15 s).</div>
+      <div class="risk-title">Przekroczony Lag Limit</div>
+      <div class="risk-desc">Apply lag &gt; <code>LagLimit</code> wyłącza auto-failover FSFO. Monitorować lag w sposób ciągły; alert przy 50% progu (15 s).</div>
       <span class="risk-badge med">MED</span>
     </div>
 
     <div class="risk-card">
       <div class="risk-id">R5</div>
-      <div class="risk-title">Non-replayable Ops</div>
-      <div class="risk-desc"><code>ALTER SESSION</code>, <code>UTL_HTTP</code>, <code>UTL_SMTP</code>, DDL inside TX break TAC replay. Code review required; move external calls outside transactions.</div>
+      <div class="risk-title">Operacje nie podlegające replay</div>
+      <div class="risk-desc"><code>ALTER SESSION</code>, <code>UTL_HTTP</code>, <code>UTL_SMTP</code>, DDL wewnątrz TX łamią replay TAC. Wymagany code review; przenieść wywołania zewnętrzne poza transakcje.</div>
       <span class="risk-badge high">HIGH</span>
     </div>
 
     <div class="risk-card">
       <div class="risk-id">R6</div>
-      <div class="risk-title">Old JDBC Drivers</div>
-      <div class="risk-desc">Pre-19c JDBC drivers cannot use TAC. Upgrade all clients to 19c+ <code>ojdbc11.jar</code>; verify in <code>V$SESSION_CONNECT_INFO</code>.</div>
+      <div class="risk-title">Stare sterowniki JDBC</div>
+      <div class="risk-desc">Sterowniki JDBC sprzed 19c nie obsługują TAC. Zaktualizować wszystkich klientów do 19c+ <code>ojdbc11.jar</code>; zweryfikować w <code>V$SESSION_CONNECT_INFO</code>.</div>
       <span class="risk-badge med">MED</span>
     </div>
 
     <div class="risk-card">
       <div class="risk-id">R7</div>
-      <div class="risk-title">FAN Port Blocked</div>
-      <div class="risk-desc">Firewall blocking ONS port 6200 prevents FAN events delivery. Open cross-site (DC↔DR) + app→RAC before go-live.</div>
+      <div class="risk-title">Port FAN zablokowany</div>
+      <div class="risk-desc">Firewall blokujący port ONS 6200 uniemożliwia dostarczanie zdarzeń FAN. Otworzyć cross-site (DC↔DR) + app→RAC przed go-live.</div>
       <span class="risk-badge med">MED</span>
     </div>
 
     <div class="risk-card">
       <div class="risk-id">R8</div>
-      <div class="risk-title">Performance Impact</div>
-      <div class="risk-desc">Commit outcome tracking adds ~3% overhead (LTXID table writes). Benchmark before production; verify SLA margins.</div>
+      <div class="risk-title">Wpływ na wydajność</div>
+      <div class="risk-desc">Śledzenie commit outcome dodaje ~3% narzutu (zapisy do tabeli LTXID). Wykonać benchmark przed produkcją; zweryfikować marginesy SLA.</div>
       <span class="risk-badge low">LOW</span>
     </div>
 
@@ -636,7 +636,7 @@
     <a href="docs/TAC-GUIDE.md">TAC-GUIDE.md</a>
     <a href="docs/INTEGRATION-GUIDE.md">INTEGRATION-GUIDE.md</a>
   </div>
-  <div style="margin-top: 8px;">Stan checklisty zapisywany w <code>localStorage</code> przegladarki (tylko Ty go widzisz).</div>
+  <div style="margin-top: 8px;">Stan checklisty zapisywany w <code>localStorage</code> przeglądarki (tylko Ty go widzisz).</div>
 </div>
 
 <script>
@@ -692,7 +692,7 @@
   }
 
   function resetAll() {
-    if (!confirm('Wyzerowac wszystkie checkboxy checklisty?')) return;
+    if (!confirm('Wyzerować wszystkie checkboxy checklisty?')) return;
     localStorage.removeItem(STORAGE_KEY);
     document.querySelectorAll('input[type="checkbox"]').forEach(b => b.checked = false);
     updateCounts();
