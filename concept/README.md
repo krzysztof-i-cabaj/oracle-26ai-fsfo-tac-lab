@@ -133,7 +133,7 @@ bash/validate_all.sh -l targets.lst
 
 | Goal | Document |
 |------|----------|
-| Quick visualization of progress + Timeline + Risk Matrix | [checklist.html](checklist.html) (open in a browser) |
+| Quick visualization of progress + Timeline + Risk Matrix | [Checklist (concept · 19c · 3-site)](https://krzysztof-i-cabaj.github.io/oracle-26ai-fsfo-tac-lab/checklist.html) |
 | Architecture and decisions overview (ADRs) | [docs/DESIGN.md](docs/DESIGN.md) |
 | Deployment schedule (6 phases, 13+ weeks) | [docs/PLAN.md](docs/PLAN.md) |
 | Step-by-step FSFO deployment | [docs/FSFO-GUIDE.md](docs/FSFO-GUIDE.md) |
