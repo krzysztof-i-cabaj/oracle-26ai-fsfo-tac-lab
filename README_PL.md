@@ -38,7 +38,7 @@
 | **🧪 Curious — co z tego wyszło?** | [`Finalne testy`](https://krzysztof-i-cabaj.github.io/oracle-26ai-fsfo-tac-lab/test_results_PL.html) — 6 scenariuszy testowych, wyniki, lekcje |
 | **🐛 Debug — błąd Oracle X** | Najpierw [`legacy/lessons-learned/FIXES_LOG_PL.md`](./legacy/lessons-learned/FIXES_LOG_PL.md) (96 fixów chronologicznie), potem [`lab/EXECUTION_LOG_PL.md`](./lab/EXECUTION_LOG_PL.md) (S01–S28) |
 | **📊 Case study** | [`lab/AUTONOMOUS_ACCESS_LOG_PL.md`](./lab/AUTONOMOUS_ACCESS_LOG_PL.md) — 975-linijkowy transcript sesji autonomous testów MAA + Executive Summary |
-| **💾 Backup & Recovery — jak testowano PITR?** | Zobacz podprojekt [`ZDLRA_like/README_PL.md`](./ZDLRA_like/README_PL.md) lub od razu interaktywną [landing page ZDLRA](https://krzysztof-i-cabaj.github.io/oracle-26ai-fsfo-tac-lab/ZDLRA_like/zdlra_PL.html) |
+| **💾 Backup & Recovery — jak testowano PITR?** | Zobacz podprojekt [`ZDLRA_like/README_PL.md`](./ZDLRA_like/README_PL.md) lub od razu interaktywną [landing page ZDLRA](https://krzysztof-i-cabaj.github.io/oracle-26ai-fsfo-tac-lab/zdlra_PL.html) |
 
 ---
 

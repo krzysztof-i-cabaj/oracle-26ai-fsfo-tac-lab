@@ -16,7 +16,7 @@
 
 ## 🌐 Live diagram + 21-minute test walkthrough
 
-> 🚀 **[Open the interactive landing page →](https://krzysztof-i-cabaj.github.io/oracle-26ai-fsfo-tac-lab/ZDLRA_like/zdlra.html)**
+> 🚀 **[Open the interactive landing page →](https://krzysztof-i-cabaj.github.io/oracle-26ai-fsfo-tac-lab/zdlra.html)**
 
 One screen, three things you don't get from `git log`:
 

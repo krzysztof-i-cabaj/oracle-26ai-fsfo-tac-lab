@@ -38,7 +38,7 @@
 | **🧪 Curious — what came out of this?** | [`Final tests`](https://krzysztof-i-cabaj.github.io/oracle-26ai-fsfo-tac-lab/test_results.html) — 6 test scenarios, results, lessons |
 | **🐛 Debug — Oracle error X** | Start with [`legacy/lessons-learned/FIXES_LOG.md`](./legacy/lessons-learned/FIXES_LOG.md) (96 fixes chronologically), then [`lab/EXECUTION_LOG.md`](./lab/EXECUTION_LOG.md) (S01–S28) |
 | **📊 Case study** | [`lab/AUTONOMOUS_ACCESS_LOG.md`](./lab/AUTONOMOUS_ACCESS_LOG.md) — 975-line transcript of an autonomous MAA test session + Executive Summary |
-| **💾 Backup & Recovery — how was PITR tested?** | Check out the subproject at [`ZDLRA_like/README.md`](./ZDLRA_like/README.md) or go straight to the interactive [ZDLRA landing page](https://krzysztof-i-cabaj.github.io/oracle-26ai-fsfo-tac-lab/ZDLRA_like/zdlra.html) |
+| **💾 Backup & Recovery — how was PITR tested?** | Check out the subproject at [`ZDLRA_like/README.md`](./ZDLRA_like/README.md) or go straight to the interactive [ZDLRA landing page](https://krzysztof-i-cabaj.github.io/oracle-26ai-fsfo-tac-lab/zdlra.html) |
 
 > **Note on translations:** Tier 1 entry pages (this README, `lab/docs/index.html`, `lab/docs/test_results.html`, `lab/README.md`, `concept/README.md`) are available in both English and Polish. Other documentation is being progressively translated; until then, the linked files may render in Polish on GitHub. Polish-only files end with `_PL.md`.
 
