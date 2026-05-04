@@ -22,6 +22,10 @@ tmp/
 *.swp
 *.swo
 
++# --- Wyjątek: ZDLRA_like subproject potrzebuje własnych logs/ ---
++!ZDLRA_like/zdlra-backup-live-test/logs/
++!ZDLRA_like/zdlra-backup-live-test/logs/**
+
 # --- Lab runtime artefacts (jeśli ktoś sklonuje i uruchomi VMs2-install) ---
 lab/scripts/*.log
 lab/AUTONOMOUS_ACCESS_LOG_*.bak
