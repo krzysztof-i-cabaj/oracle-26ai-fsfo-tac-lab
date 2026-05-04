@@ -2,12 +2,13 @@
 # .gitignore — ZDLRA_like subproject
 # ============================================================
 
-# Logs (technical, gitignored)
-logs/
+# Logs (technical, gitignored — only top-level ZDLRA_like/logs/, NOT subfolder logs/)
+/logs/
 *.log
 *.trc
 *.trm
 alert_*.log
+# (zdlra-backup-live-test/logs/ IS tracked — contains autonomous test session logs)
 
 # Reports (auto-generated, gitignored)
 reports/
