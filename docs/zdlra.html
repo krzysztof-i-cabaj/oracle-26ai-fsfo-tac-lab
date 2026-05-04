@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZDLRA_like — Recovery Appliance for Oracle 26ai HA MAA LAB</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0d1117; --bg2: #161b22; --bg3: #21262d; --border: #30363d;
+  --text: #e6edf3; --muted: #8b949e;
+  --red: #C74634; --orange: #F48024; --gold: #F7B731; --blue: #58a6ff;
+  --green: #3fb950; --purple: #bc8cff;
+  --radius: 10px;
+}
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; line-height: 1.65; font-size: 15px; }
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+code, .mono { font-family: 'JetBrains Mono', monospace; font-size: 0.85em; background: var(--bg3); padding: 1px 5px; border-radius: 3px; }
+.container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+section { padding: 60px 0; }
+h2 { font-size: 1.75rem; font-weight: 700; margin-bottom: 10px; letter-spacing: -0.02em; }
+h3 { font-size: 1.05rem; font-weight: 600; margin: 16px 0 8px; }
+.section-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--red); margin-bottom: 8px; }
+.section-sub { color: var(--muted); margin-bottom: 36px; max-width: 680px; font-size: 0.95rem; }
+
+nav { border-bottom: 1px solid var(--border); padding: 14px 0; position: sticky; top: 0; z-index: 100; background: rgba(13,17,23,0.94); backdrop-filter: blur(10px); }
+.nav-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.nav-logo { font-weight: 700; font-size: 0.95rem; }
+.nav-logo span { color: var(--red); }
+.nav-links { display: flex; gap: 22px; font-size: 0.83rem; color: var(--muted); list-style: none; align-items: center; }
+.nav-links a { color: var(--muted); transition: color 0.15s; }
+.nav-links a:hover { color: var(--text); text-decoration: none; }
+.nav-links a.cta { color: var(--blue); }
+.lang-switch { display: flex; align-items: center; gap: 6px; margin-left: 10px; padding-left: 14px; border-left: 1px solid var(--border); }
+.lang { font-size: 0.78rem; color: var(--muted); padding: 2px 7px; border-radius: 4px; }
+.lang.active { color: var(--text); background: var(--bg3); }
+.lang-sep { color: var(--border); font-size: 0.75rem; }
+
+.hero { position: relative; padding: 80px 0 60px; overflow: hidden; border-bottom: 1px solid var(--border);
+        background: radial-gradient(ellipse 70% 50% at 50% -5%, rgba(199,70,52,0.22) 0%, transparent 60%),
+                    radial-gradient(ellipse 40% 30% at 85% 80%, rgba(88,166,255,0.06) 0%, transparent 50%); }
+.hero h1 { font-size: 2.5rem; font-weight: 700; line-height: 1.1; margin-bottom: 18px; letter-spacing: -0.025em; }
+.hero h1 .accent { color: var(--red); }
+.hero p.lead { font-size: 1.05rem; color: var(--muted); max-width: 720px; margin-bottom: 24px; }
+.hero-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+.badge { font-size: 0.78rem; padding: 4px 10px; border-radius: 12px; background: var(--bg3); border: 1px solid var(--border); color: var(--text); }
+.badge.green { color: var(--green); border-color: rgba(63,185,80,0.4); }
+.badge.red { color: #ff8c7a; border-color: rgba(199,70,52,0.4); }
+.badge.blue { color: #79c0ff; border-color: rgba(88,166,255,0.4); }
+.badge.orange { color: #f7c948; border-color: rgba(247,183,49,0.4); }
+.btn { display: inline-block; padding: 9px 18px; border-radius: 6px; font-size: 0.88rem; font-weight: 500; transition: all 0.15s; margin-right: 10px; margin-top: 8px; }
+.btn-primary { background: var(--red); color: #fff; }
+.btn-primary:hover { background: #d85543; text-decoration: none; }
+.btn-secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+.btn-secondary:hover { border-color: var(--text); text-decoration: none; }
+
+.topo-wrap { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; }
+.topo-svg { width: 100%; height: auto; max-height: 540px; display: block; }
+.net-legend { display: flex; gap: 24px; margin-top: 18px; flex-wrap: wrap; font-size: 0.85rem; color: var(--muted); }
+.net-legend .swatch { display: inline-block; width: 12px; height: 3px; vertical-align: middle; margin-right: 6px; }
+
+.timeline { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-top: 24px; }
+.timeline-row { display: grid; grid-template-columns: 80px 1fr 80px 80px; gap: 14px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 0.92rem; }
+.timeline-row:last-child { border-bottom: none; }
+.timeline-row .time { color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; }
+.timeline-row .duration { color: var(--gold); font-weight: 600; text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; }
+.timeline-row .status { text-align: right; color: var(--green); font-weight: 600; }
+.phase-name { color: var(--text); }
+.phase-name strong { color: var(--red); }
+
+.lessons { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 0; margin-top: 24px; overflow: hidden; }
+.lesson-row { display: grid; grid-template-columns: 60px 1fr; gap: 14px; padding: 14px 20px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+.lesson-row:last-child { border-bottom: none; }
+.lesson-row .num { color: var(--gold); font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+.lesson-row .body { color: var(--text); }
+.lesson-row .body strong { color: var(--red); }
+.lesson-row .body code { font-size: 0.84em; }
+
+footer { border-top: 1px solid var(--border); padding: 30px 0; color: var(--muted); font-size: 0.85rem; }
+footer a { color: var(--muted); }
+footer a:hover { color: var(--text); }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="container nav-inner">
+    <div class="nav-logo">ZDLRA<span>_like</span></div>
+    <ul class="nav-links">
+      <li><a href="#topology">Topology</a></li>
+      <li><a href="#timeline">Test session</a></li>
+      <li><a href="#lessons">Lessons</a></li>
+      <li><a href="#docs">Docs</a></li>
+      <li><a href="https://github.com/krzysztof-i-cabaj/oracle-26ai-fsfo-tac-lab" class="cta">GitHub ↗</a></li>
+      <li class="lang-switch">
+        <span class="lang active">EN</span>
+        <span class="lang-sep">/</span>
+        <a href="zdlra_PL.html" class="lang">PL</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="container">
+    <h1>Recovery Appliance — <span class="accent">ZDLRA_like</span> backup layer</h1>
+    <p class="lead">Oracle 26ai (23.26.1) RMAN catalog + ZDLRA-Like simulation (image copy + L1 incremental merge) on a dedicated host <code>rcat01</code>, completing the parent FSFO/TAC LAB into a full <strong>MAA stack = HA + DR + Backup</strong>. Includes a fully autonomous AI agent test session (Claude Opus 4.7) with 100% PITR recovery in 1m 8s.</p>
+    <div class="hero-badges">
+      <span class="badge red">Oracle 26ai 23.26.1</span>
+      <span class="badge orange">Oracle Linux 8.10</span>
+      <span class="badge blue">RAC 2-node + DG + RMAN catalog</span>
+      <span class="badge green">Sprints 0-3 complete</span>
+      <span class="badge green">34 lessons learned</span>
+    </div>
+    <div style="margin-top: 22px;">
+      <a href="#topology" class="btn btn-primary">View topology →</a>
+      <a href="https://github.com/krzysztof-i-cabaj/oracle-26ai-fsfo-tac-lab" class="btn btn-secondary">Source on GitHub</a>
+    </div>
+  </div>
+</section>
+
+<section id="topology">
+  <div class="container">
+    <div class="section-label">Architecture</div>
+    <h2>LAB topology with Recovery Appliance</h2>
+    <p class="section-sub">Parent FSFO/TAC LAB (PRIM RAC + STBY) extended with <code>rcat01</code> hosting an Oracle 26ai Single Instance + RMAN catalog + ZDLRA-Like simulation. Real-time redo to rcat01 (DEST_3) is architecturally limited — see Lesson #29.</p>
+
+    <div class="topo-wrap">
+      <svg class="topo-svg" viewBox="0 0 880 460" xmlns="http://www.w3.org/2000/svg" font-family="'Inter', system-ui, sans-serif">
+        <defs>
+          <pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse">
+            <circle cx="1" cy="1" r="0.8" fill="#2d333b"/>
+          </pattern>
+          <marker id="aBlue" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+            <path d="M0,0.5 L0,5.5 L6,3 z" fill="#58a6ff"/>
+          </marker>
+          <marker id="aGreen" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+            <path d="M0,0.5 L0,5.5 L6,3 z" fill="#3fb950"/>
+          </marker>
+          <marker id="aOrange" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+            <path d="M0,0.5 L0,5.5 L6,3 z" fill="#F48024"/>
+          </marker>
+          <marker id="aRed" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+            <path d="M0,0.5 L0,5.5 L6,3 z" fill="#C74634" opacity="0.7"/>
+          </marker>
+        </defs>
+        <rect width="880" height="460" fill="url(#dots)"/>
+
+        <!-- ───── RAC PRIMARY ───── -->
+        <rect x="20" y="42" width="400" height="138" rx="9"
+              fill="none" stroke="#2d333b" stroke-width="1.2" stroke-dasharray="6,4"/>
+        <text x="32" y="34" fill="#4d5566" font-size="9.5" font-weight="700" letter-spacing="1.5">PRIMARY CLUSTER · RAC 2-node</text>
+
+        <!-- prim01 -->
+        <rect x="32" y="55" width="178" height="116" rx="8" fill="#161b22" stroke="#C74634" stroke-width="1.6"/>
+        <rect x="32" y="55" width="178" height="26" rx="8" fill="rgba(199,70,52,0.16)"/>
+        <text x="121" y="73" text-anchor="middle" fill="#ff8c7a" font-weight="700" font-size="12.5">prim01.lab.local</text>
+        <text x="121" y="94" text-anchor="middle" fill="#e6edf3" font-size="10.5">RAC Node 1 · GI 23.26</text>
+        <text x="121" y="110" text-anchor="middle" fill="#e6edf3" font-size="10.5">CDB PRIM · APPPDB</text>
+        <text x="121" y="128" text-anchor="middle" fill="#8b949e" font-size="10">ASM: +DATA / +RECO</text>
+        <text x="121" y="146" text-anchor="middle" fill="#8b949e" font-size="9.5">192.168.56.11 · VIP .56.21</text>
+        <text x="121" y="162" text-anchor="middle" fill="#58a6ff" font-size="9">SCAN: 192.168.56.31-33</text>
+
+        <!-- prim02 -->
+        <rect x="226" y="55" width="178" height="116" rx="8" fill="#161b22" stroke="#C74634" stroke-width="1.6"/>
+        <rect x="226" y="55" width="178" height="26" rx="8" fill="rgba(199,70,52,0.16)"/>
+        <text x="315" y="73" text-anchor="middle" fill="#ff8c7a" font-weight="700" font-size="12.5">prim02.lab.local</text>
+        <text x="315" y="94" text-anchor="middle" fill="#e6edf3" font-size="10.5">RAC Node 2 · GI 23.26</text>
+        <text x="315" y="110" text-anchor="middle" fill="#e6edf3" font-size="10.5">CDB PRIM · APPPDB</text>
+        <text x="315" y="128" text-anchor="middle" fill="#8b949e" font-size="10">ASM: +DATA / +RECO</text>
+        <text x="315" y="146" text-anchor="middle" fill="#8b949e" font-size="9.5">192.168.56.12 · VIP .56.22</text>
+
+        <!-- ───── STBY ───── -->
+        <rect x="500" y="42" width="220" height="138" rx="9" fill="#161b22" stroke="#3fb950" stroke-width="1.6"/>
+        <rect x="500" y="42" width="220" height="26" rx="9" fill="rgba(63,185,80,0.12)"/>
+        <text x="610" y="60" text-anchor="middle" fill="#56d364" font-weight="700" font-size="12.5">stby01.lab.local</text>
+        <text x="610" y="82" text-anchor="middle" fill="#e6edf3" font-size="10.5">Physical Standby · Oracle Restart</text>
+        <text x="610" y="100" text-anchor="middle" fill="#3fb950" font-size="10">READ ONLY WITH APPLY (Active DG)</text>
+        <text x="610" y="118" text-anchor="middle" fill="#e6edf3" font-size="10">db_unique_name=STBY · DBID identical</text>
+        <text x="610" y="136" text-anchor="middle" fill="#8b949e" font-size="10">Real-Time Apply · MaxPerformance</text>
+        <text x="610" y="154" text-anchor="middle" fill="#8b949e" font-size="9.5">192.168.56.13 · 6 GB RAM</text>
+        <text x="610" y="170" text-anchor="middle" fill="#56d364" font-size="9">RTO: ~5–45 s (FSFO failover)</text>
+
+        <!-- ───── RECOVERY APPLIANCE rcat01 ───── -->
+        <rect x="220" y="240" width="500" height="148" rx="9"
+              fill="none" stroke="#58a6ff" stroke-width="1.6" stroke-dasharray="5,4"/>
+        <text x="232" y="232" fill="#58a6ff" font-size="9.5" font-weight="700" letter-spacing="1.5">RECOVERY APPLIANCE · ZDLRA_like (this subproject)</text>
+
+        <!-- rcat01 -->
+        <rect x="232" y="252" width="220" height="124" rx="8" fill="#161b22" stroke="#58a6ff" stroke-width="1.6"/>
+        <rect x="232" y="252" width="220" height="26" rx="8" fill="rgba(88,166,255,0.16)"/>
+        <text x="342" y="270" text-anchor="middle" fill="#79c0ff" font-weight="700" font-size="12.5">rcat01.lab.local</text>
+        <text x="342" y="292" text-anchor="middle" fill="#e6edf3" font-size="10.5">Oracle 26ai 23.26.1 (Single Instance)</text>
+        <text x="342" y="308" text-anchor="middle" fill="#e6edf3" font-size="10.5">CDB <tspan fill="#79c0ff">RCAT</tspan> · PDB <tspan fill="#79c0ff">RCATPDB</tspan></text>
+        <text x="342" y="326" text-anchor="middle" fill="#bc8cff" font-size="10">RMAN catalog · schema rman_cat</text>
+        <text x="342" y="343" text-anchor="middle" fill="#e6edf3" font-size="10">systemd auto-start (no GI)</text>
+        <text x="342" y="360" text-anchor="middle" fill="#8b949e" font-size="9.5">192.168.56.14 · 4 GB RAM</text>
+
+        <!-- backup storage -->
+        <rect x="472" y="252" width="240" height="124" rx="8" fill="#161b22" stroke="#3fb950" stroke-width="1.6"/>
+        <rect x="472" y="252" width="240" height="26" rx="8" fill="rgba(63,185,80,0.16)"/>
+        <text x="592" y="270" text-anchor="middle" fill="#56d364" font-weight="700" font-size="12.5">/mnt/rman_bck/  (vboxsf)</text>
+        <text x="592" y="292" text-anchor="middle" fill="#e6edf3" font-size="10.5">1.9 TB shared with Windows host</text>
+        <text x="592" y="308" text-anchor="middle" fill="#e6edf3" font-size="10">├── full/    compressed FULL bsets</text>
+        <text x="592" y="324" text-anchor="middle" fill="#e6edf3" font-size="10">├── incr_merge/  image copy + L1</text>
+        <text x="592" y="340" text-anchor="middle" fill="#e6edf3" font-size="10">├── arch/   archivelog backups</text>
+        <text x="592" y="356" text-anchor="middle" fill="#e6edf3" font-size="10">└── cf/     controlfile autobackup</text>
+
+        <!-- ───── Connections ───── -->
+        <!-- DG: PRIM → STBY (green, redo apply) -->
+        <line x1="404" y1="113" x2="500" y2="113" stroke="#3fb950" stroke-width="1.8" marker-end="url(#aGreen)"/>
+        <text x="450" y="106" text-anchor="middle" fill="#3fb950" font-size="9" font-weight="600">DG redo</text>
+        <text x="450" y="128" text-anchor="middle" fill="#3fb950" font-size="8.5">DEST_2 SYNC NOAFFIRM</text>
+
+        <!-- RMAN catalog: PRIM → rcat01 (blue) -->
+        <path d="M 220,180 Q 280,210 290,252" stroke="#58a6ff" stroke-width="1.8" fill="none" marker-end="url(#aBlue)"/>
+        <text x="244" y="220" text-anchor="middle" fill="#58a6ff" font-size="9" font-weight="600">RMAN catalog connect</text>
+        <text x="244" y="232" text-anchor="middle" fill="#58a6ff" font-size="8.5">1521/RCATPDB</text>
+
+        <!-- Backup pieces: PRIM → /mnt/rman_bck (orange, thick) -->
+        <path d="M 320,180 Q 460,210 520,252" stroke="#F48024" stroke-width="2.2" fill="none" marker-end="url(#aOrange)"/>
+        <text x="430" y="218" text-anchor="middle" fill="#F48024" font-size="9" font-weight="600">backup pieces · archlogs</text>
+
+        <!-- DEST_3 (deferred, dashed red) -->
+        <path d="M 400,170 Q 380,210 380,252" stroke="#C74634" stroke-width="1.5" fill="none" stroke-dasharray="6,4" marker-end="url(#aRed)" opacity="0.6"/>
+        <text x="378" y="208" text-anchor="end" fill="#C74634" font-size="9" font-weight="600" opacity="0.8">DEST_3 DEFERRED</text>
+        <text x="378" y="220" text-anchor="end" fill="#C74634" font-size="8" opacity="0.7">Lesson #29</text>
+
+        <!-- Internal: rcat01 → /mnt/rman_bck -->
+        <line x1="452" y1="314" x2="472" y2="314" stroke="#8b949e" stroke-width="1.4" marker-end="url(#aGreen)" stroke-dasharray="3,3"/>
+
+        <!-- ───── Footer notes ───── -->
+        <rect x="20" y="408" width="838" height="40" rx="6" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+        <text x="32" y="425" fill="#8b949e" font-size="10" font-weight="600">Parent FSFO/TAC LAB:</text>
+        <text x="32" y="439" fill="#8b949e" font-size="9.5">prim01 + prim02 (RAC) ↔ stby01 (DG) — extended in this subproject with rcat01 (RMAN catalog + ZDLRA-Like simulation).</text>
+        <text x="730" y="430" text-anchor="end" fill="#79c0ff" font-size="9">Oracle 26ai 23.26.1.0.0 · OL 8.10</text>
+        <text x="730" y="442" text-anchor="end" fill="#79c0ff" font-size="9">VirtualBox 7.x · vboxsf shared</text>
+      </svg>
+
+      <div class="net-legend">
+        <span><span class="swatch" style="background:#3fb950;"></span>DG redo apply (sync)</span>
+        <span><span class="swatch" style="background:#58a6ff;"></span>RMAN catalog connect</span>
+        <span><span class="swatch" style="background:#F48024;"></span>Backup pieces · archlogs</span>
+        <span><span class="swatch" style="background:#C74634; opacity:0.6;"></span>DEST_3 DEFERRED (Lesson #29)</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="timeline" style="background: var(--bg2);">
+  <div class="container">
+    <div class="section-label">Killer demo</div>
+    <h2>Autonomous AI agent test session</h2>
+    <p class="section-sub">21 minutes, executed by Claude Opus 4.7, every command + every result logged. Full output: <a href="zdlra-backup-live-test/logs/autonomous_zdlra_backup_test.md">autonomous_zdlra_backup_test.md</a> (~31 KB).</p>
+
+    <div class="timeline">
+      <div class="timeline-row">
+        <span class="time">16:50</span>
+        <span class="phase-name"><strong>Phase 0</strong> — Pre-flight diagnostics (DG, RMAN catalog, storage)</span>
+        <span class="duration">~30s</span>
+        <span class="status">✅</span>
+      </div>
+      <div class="timeline-row">
+        <span class="time">16:55</span>
+        <span class="phase-name"><strong>Phase 1</strong> — ZDLRA-Like full backup (<code>RECOVER COPY OF DATABASE</code>): image copy SCN advanced ~17,000</span>
+        <span class="duration">53s</span>
+        <span class="status">✅</span>
+      </div>
+      <div class="timeline-row">
+        <span class="time">16:56</span>
+        <span class="phase-name"><strong>Phase 2</strong> — Backup merge cycle: workload (15K rows) + 6 new L1 + 5 archlog pieces (~129 MB)</span>
+        <span class="duration">138s</span>
+        <span class="status">✅</span>
+      </div>
+      <div class="timeline-row">
+        <span class="time">16:59</span>
+        <span class="phase-name"><strong>B-1</strong> — Compressed FULL + ARCHLOG + CROSSCHECK: 13 pieces (519 MB)</span>
+        <span class="duration">~5 min</span>
+        <span class="status">✅</span>
+      </div>
+      <div class="timeline-row">
+        <span class="time">17:05</span>
+        <span class="phase-name"><strong>B-4</strong> — PITR after DROP TABLE in APPPDB (RAC-aware <code>INSTANCES=ALL</code>): <strong>100% recovery</strong> (1000/1000 rows)</span>
+        <span class="duration">1m 8s</span>
+        <span class="status">✅</span>
+      </div>
+      <div class="timeline-row">
+        <span class="time">17:11</span>
+        <span class="phase-name"><strong>Phase 4</strong> — Cleanup + DG verify: Apply Lag 0s, Transport Lag 0s</span>
+        <span class="duration">~30s</span>
+        <span class="status">✅</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="lessons">
+  <div class="container">
+    <div class="section-label">Knowledge base</div>
+    <h2>5 new lessons learned (#30 → #34)</h2>
+    <p class="section-sub">Discovered during the autonomous test session. Cumulative catalog now at 34 lessons in <a href="docs/10_Troubleshooting.md">docs/10_Troubleshooting.md</a>.</p>
+
+    <div class="lessons">
+      <div class="lesson-row">
+        <span class="num">#30</span>
+        <span class="body"><strong>RAC PDB PITR requires <code>CLOSE IMMEDIATE INSTANCES=ALL</code></strong>. Without <code>INSTANCES=ALL</code> RMAN throws <code>ORA-65025: Pluggable database is not closed on all instances</code>. Single-instance docs assumed <code>CLOSE IMMEDIATE</code> alone is enough.</span>
+      </div>
+      <div class="lesson-row">
+        <span class="num">#31</span>
+        <span class="body"><strong>SQL*Plus heredoc over SSH is session-isolated</strong>. <code>ALTER SESSION SET CONTAINER</code> in one heredoc does NOT persist to the next. Workaround: use <code>sqlplus -S / as sysdba @/tmp/script.sql</code> with the entire sequence in one SQL file.</span>
+      </div>
+      <div class="lesson-row">
+        <span class="num">#32</span>
+        <span class="body"><strong>SET FEEDBACK ON + ECHO OFF as must-have</strong>. First line of every SQL file: <code>SET LINESIZE 220 PAGESIZE 50 FEEDBACK ON HEADING ON ECHO OFF</code>. Defaults may hide query results, looking like silent failures.</span>
+      </div>
+      <div class="lesson-row">
+        <span class="num">#33</span>
+        <span class="body"><strong>Table "vanished" between SQL sessions</strong> — created + committed, gone before next phase, not in <code>dba_recyclebin</code>. Likely related to #31 session isolation. Workaround: fresh CREATE in same session as test. Root cause not yet diagnosed.</span>
+      </div>
+      <div class="lesson-row">
+        <span class="num">#34</span>
+        <span class="body"><strong>Block corruption demo (B-5) unavailable for ASM datafiles</strong>. doc 08 §B-5 assumed filesystem datafiles (<code>dd if=/dev/zero of=/u02/oradata/...</code>). LAB datafiles on <code>+DATA/PRIM/...</code> require ASMCMD-based or <code>DBMS_REPAIR</code> approach.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="docs" style="background: var(--bg2);">
+  <div class="container">
+    <div class="section-label">Documentation</div>
+    <h2>Full subproject documentation</h2>
+    <p class="section-sub">10 chapters (EN + PL) + DESIGN ADRs + autonomous test session walkthrough.</p>
+
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 24px;">
+      <a href="README.md" class="topo-wrap" style="display:block; padding:18px; text-decoration:none; color:var(--text);">
+        <strong>📖 README.md</strong><br><span style="color:var(--muted); font-size:0.88rem;">Overview · structure · quick start</span>
+      </a>
+      <a href="DESIGN.md" class="topo-wrap" style="display:block; padding:18px; text-decoration:none; color:var(--text);">
+        <strong>🏗️ DESIGN.md</strong><br><span style="color:var(--muted); font-size:0.88rem;">ADRs · architecture · security</span>
+      </a>
+      <a href="docs/07_ZDLRA_Like_Simulation.md" class="topo-wrap" style="display:block; padding:18px; text-decoration:none; color:var(--text);">
+        <strong>📖 doc 07 — ZDLRA-Like Simulation</strong><br><span style="color:var(--muted); font-size:0.88rem;">Image copy + L1 merge cycle · Lesson #29</span>
+      </a>
+      <a href="docs/08_Backup_Restore_Scenarios.md" class="topo-wrap" style="display:block; padding:18px; text-decoration:none; color:var(--text);">
+        <strong>📖 doc 08 — 8 Test Scenarios</strong><br><span style="color:var(--muted); font-size:0.88rem;">B-1..B-8 with Method A/B</span>
+      </a>
+      <a href="docs/10_Troubleshooting.md" class="topo-wrap" style="display:block; padding:18px; text-decoration:none; color:var(--text);">
+        <strong>📖 doc 10 — Troubleshooting</strong><br><span style="color:var(--muted); font-size:0.88rem;">Cumulative lessons #1-#34</span>
+      </a>
+      <a href="zdlra-backup-live-test/" class="topo-wrap" style="display:block; padding:18px; text-decoration:none; color:var(--text); border-color: var(--red);">
+        <strong style="color:#ff8c7a;">🔴 zdlra-backup-live-test/</strong><br><span style="color:var(--muted); font-size:0.88rem;">Autonomous AI agent test session — full log</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:20px;">
+      <div>
+        <strong>ZDLRA_like</strong> — Backup layer for Oracle 26ai HA MAA LAB<br>
+        Author: KCB Kris + Claude (autonomous AI agent — Anthropic Claude Opus 4.7)
+      </div>
+      <div style="text-align:right;">
+        Parent: <a href="https://github.com/krzysztof-i-cabaj/oracle-26ai-fsfo-tac-lab">oracle-26ai-fsfo-tac-lab</a><br>
+        License: <a href="LICENSE">MIT</a> · <a href="CONTRIBUTING.md">Contributing</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

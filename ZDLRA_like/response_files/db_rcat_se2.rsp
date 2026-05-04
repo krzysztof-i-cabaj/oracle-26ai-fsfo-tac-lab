@@ -1,0 +1,44 @@
+# ==============================================================================
+# Tytul:        db_rcat_se2.rsp - Oracle Database 23.26.1 silent install dla rcat01
+# Opis:         Response file dla instalacji oprogramowania bazy (Software Only)
+#               na rcat01 (Single Instance, BEZ Oracle Restart, BEZ klastra RAC).
+# Description [EN]: Response file for DB Software Only install on rcat01
+#               (plain Single Instance, NO Oracle Restart, NO RAC).
+#
+# Autor:        KCB Kris
+# Data:         2026-05-01
+# Wersja:       1.0
+# <repo>:       ZDLRA_like
+# Konwencje:    ZDLRA_like/SETTINGS.md
+#
+# UWAGA [PL]: Roznice vs db_stby.rsp (Standby with Oracle Restart):
+#   - rcat01 nie ma Grid Infrastructure (zwykla SI + systemd)
+#   - InstallEdition=EE (spojnosc z PRIM/STBY w LAB-ie; mozna zmienic na SE2)
+#   - Pelny zestaw OS groups (backupdba/dgdba/kmdba) - dla pelnej kompatybilnosci RMAN
+#
+# NOTE [EN]: Differences vs db_stby.rsp:
+#   - No Grid Infrastructure on rcat01 (plain SI + systemd)
+#   - InstallEdition=EE (consistency with rest of lab; could be SE2)
+# ==============================================================================
+
+oracle.install.responseFileVersion=/oracle/install/rspfmt_dbinstall_response_schema_v23.0.0
+oracle.install.option=INSTALL_DB_SWONLY
+UNIX_GROUP_NAME=oinstall
+INVENTORY_LOCATION=/u01/app/oraInventory
+ORACLE_BASE=/u01/app/oracle
+oracle.install.db.InstallEdition=EE
+oracle.install.db.OSDBA_GROUP=dba
+oracle.install.db.OSOPER_GROUP=oper
+oracle.install.db.OSBACKUPDBA_GROUP=backupdba
+oracle.install.db.OSDGDBA_GROUP=dgdba
+oracle.install.db.OSKMDBA_GROUP=kmdba
+oracle.install.db.OSRACDBA_GROUP=racdba
+oracle.install.db.rootconfig.executeRootScript=false
+oracle.install.db.rootconfig.configMethod=
+oracle.install.db.rootconfig.sudoPath=
+oracle.install.db.rootconfig.sudoUserName=
+# Single Instance bez Restart - puste CLUSTER_NODES
+# Plain SI without Restart - empty CLUSTER_NODES
+oracle.install.db.CLUSTER_NODES=
+oracle.install.db.isRACOneInstall=false
+oracle.install.db.racOneServiceName=

@@ -1,0 +1,51 @@
+# ==============================================================================
+# systemd unit dla Oracle DB RCAT na rcat01
+# Auto-start po reboocie OS przez dbstart/dbshut z $ORACLE_HOME/bin
+#
+# Auto-start Oracle DB RCAT after OS reboot via dbstart/dbshut.
+#
+# Instalacja / Installation:
+#   sudo cp oracle-rcat.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable oracle-rcat.service
+#   sudo systemctl start oracle-rcat.service
+#
+# Uwaga: dbstart wczyta /etc/oratab i wystartuje wszystkie wpisy z flaga 'Y'.
+#        Listener jest startowany przez dbstart automatycznie.
+# Note: dbstart reads /etc/oratab and starts entries with 'Y' flag.
+#       Listener is auto-started by dbstart.
+# ==============================================================================
+
+[Unit]
+Description=Oracle Database RCAT (RMAN Recovery Catalog)
+After=network-online.target
+Wants=network-online.target
+Documentation=man:dbstart(1) man:dbshut(1)
+
+[Service]
+Type=forking
+User=oracle
+Group=oinstall
+Environment=ORACLE_HOME=/u01/app/oracle/product/23.26/dbhome_1
+Environment=ORACLE_BASE=/u01/app/oracle
+Environment=ORACLE_SID=RCAT
+
+# dbstart przyjmuje ORACLE_HOME jako argument; czyta /etc/oratab i startuje:
+#   - Listener (LISTENER) jesli nie dziala
+#   - Wszystkie SID z flaga 'Y' w oratab
+ExecStart=/u01/app/oracle/product/23.26/dbhome_1/bin/dbstart /u01/app/oracle/product/23.26/dbhome_1
+ExecStop=/u01/app/oracle/product/23.26/dbhome_1/bin/dbshut /u01/app/oracle/product/23.26/dbhome_1
+
+RemainAfterExit=yes
+TimeoutStartSec=600
+TimeoutStopSec=300
+
+# Restart polityka: nie restartuj automatycznie po crashu (manual interwencja)
+Restart=no
+
+# Logi do journald (sprawdz: journalctl -u oracle-rcat.service)
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

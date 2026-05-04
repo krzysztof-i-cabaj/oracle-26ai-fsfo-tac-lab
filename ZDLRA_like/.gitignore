@@ -1,0 +1,62 @@
+# ============================================================
+# .gitignore — ZDLRA_like subproject
+# ============================================================
+
+# Logs (technical, gitignored)
+logs/
+*.log
+*.trc
+*.trm
+alert_*.log
+
+# Reports (auto-generated, gitignored)
+reports/
+*.html.bak
+
+# Editor / OS
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Oracle artifacts (should never be committed)
+*.dbf
+*.ctl
+*.ora
+oracle_home/
+oradata/
+*.aud
+
+# Secrets (NEVER commit)
+.lab_secrets
+.secrets
+*.pem
+*.key
+*.p12
+*.jks
+
+# Temp files
+/tmp/
+*.tmp
+*.bak
+*.orig
+
+# Backup pieces
+*.bkp
+backup_*/
+arch_*/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.Python
+venv/
+.venv/
+
+# Test scratch
+_tmp_diag/
+auto_test_local/

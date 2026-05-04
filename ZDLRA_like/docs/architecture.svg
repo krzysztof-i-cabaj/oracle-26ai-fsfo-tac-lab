@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 460" font-family="'Inter', system-ui, sans-serif">
+  <defs>
+    <pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r="0.8" fill="#2d333b"/>
+    </pattern>
+    <marker id="aBlue" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+      <path d="M0,0.5 L0,5.5 L6,3 z" fill="#58a6ff"/>
+    </marker>
+    <marker id="aGreen" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+      <path d="M0,0.5 L0,5.5 L6,3 z" fill="#3fb950"/>
+    </marker>
+    <marker id="aOrange" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+      <path d="M0,0.5 L0,5.5 L6,3 z" fill="#F48024"/>
+    </marker>
+    <marker id="aRed" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+      <path d="M0,0.5 L0,5.5 L6,3 z" fill="#C74634" opacity="0.7"/>
+    </marker>
+  </defs>
+  <rect width="880" height="460" fill="#0d1117"/>
+  <rect width="880" height="460" fill="url(#dots)"/>
+
+  <!-- PRIMARY CLUSTER -->
+  <rect x="20" y="42" width="400" height="138" rx="9" fill="none" stroke="#2d333b" stroke-width="1.2" stroke-dasharray="6,4"/>
+  <text x="32" y="34" fill="#4d5566" font-size="9.5" font-weight="700" letter-spacing="1.5">PRIMARY CLUSTER · RAC 2-node</text>
+
+  <rect x="32" y="55" width="178" height="116" rx="8" fill="#161b22" stroke="#C74634" stroke-width="1.6"/>
+  <rect x="32" y="55" width="178" height="26" rx="8" fill="rgba(199,70,52,0.16)"/>
+  <text x="121" y="73" text-anchor="middle" fill="#ff8c7a" font-weight="700" font-size="12.5">prim01.lab.local</text>
+  <text x="121" y="94" text-anchor="middle" fill="#e6edf3" font-size="10.5">RAC Node 1 · GI 23.26</text>
+  <text x="121" y="110" text-anchor="middle" fill="#e6edf3" font-size="10.5">CDB PRIM · APPPDB</text>
+  <text x="121" y="128" text-anchor="middle" fill="#8b949e" font-size="10">ASM: +DATA / +RECO</text>
+  <text x="121" y="146" text-anchor="middle" fill="#8b949e" font-size="9.5">192.168.56.11 · VIP .56.21</text>
+  <text x="121" y="162" text-anchor="middle" fill="#58a6ff" font-size="9">SCAN: 192.168.56.31-33</text>
+
+  <rect x="226" y="55" width="178" height="116" rx="8" fill="#161b22" stroke="#C74634" stroke-width="1.6"/>
+  <rect x="226" y="55" width="178" height="26" rx="8" fill="rgba(199,70,52,0.16)"/>
+  <text x="315" y="73" text-anchor="middle" fill="#ff8c7a" font-weight="700" font-size="12.5">prim02.lab.local</text>
+  <text x="315" y="94" text-anchor="middle" fill="#e6edf3" font-size="10.5">RAC Node 2 · GI 23.26</text>
+  <text x="315" y="110" text-anchor="middle" fill="#e6edf3" font-size="10.5">CDB PRIM · APPPDB</text>
+  <text x="315" y="128" text-anchor="middle" fill="#8b949e" font-size="10">ASM: +DATA / +RECO</text>
+  <text x="315" y="146" text-anchor="middle" fill="#8b949e" font-size="9.5">192.168.56.12 · VIP .56.22</text>
+
+  <!-- STBY -->
+  <rect x="500" y="42" width="220" height="138" rx="9" fill="#161b22" stroke="#3fb950" stroke-width="1.6"/>
+  <rect x="500" y="42" width="220" height="26" rx="9" fill="rgba(63,185,80,0.12)"/>
+  <text x="610" y="60" text-anchor="middle" fill="#56d364" font-weight="700" font-size="12.5">stby01.lab.local</text>
+  <text x="610" y="82" text-anchor="middle" fill="#e6edf3" font-size="10.5">Physical Standby · Oracle Restart</text>
+  <text x="610" y="100" text-anchor="middle" fill="#3fb950" font-size="10">READ ONLY WITH APPLY (Active DG)</text>
+  <text x="610" y="118" text-anchor="middle" fill="#e6edf3" font-size="10">db_unique_name=STBY · same DBID</text>
+  <text x="610" y="136" text-anchor="middle" fill="#8b949e" font-size="10">Real-Time Apply · MaxPerformance</text>
+  <text x="610" y="154" text-anchor="middle" fill="#8b949e" font-size="9.5">192.168.56.13 · 6 GB RAM</text>
+  <text x="610" y="170" text-anchor="middle" fill="#56d364" font-size="9">RTO: ~5–45 s (FSFO failover)</text>
+
+  <!-- RECOVERY APPLIANCE -->
+  <rect x="220" y="240" width="500" height="148" rx="9" fill="none" stroke="#58a6ff" stroke-width="1.6" stroke-dasharray="5,4"/>
+  <text x="232" y="232" fill="#58a6ff" font-size="9.5" font-weight="700" letter-spacing="1.5">RECOVERY APPLIANCE · ZDLRA_like (this subproject)</text>
+
+  <rect x="232" y="252" width="220" height="124" rx="8" fill="#161b22" stroke="#58a6ff" stroke-width="1.6"/>
+  <rect x="232" y="252" width="220" height="26" rx="8" fill="rgba(88,166,255,0.16)"/>
+  <text x="342" y="270" text-anchor="middle" fill="#79c0ff" font-weight="700" font-size="12.5">rcat01.lab.local</text>
+  <text x="342" y="292" text-anchor="middle" fill="#e6edf3" font-size="10.5">Oracle 26ai 23.26.1 (Single Instance)</text>
+  <text x="342" y="308" text-anchor="middle" fill="#e6edf3" font-size="10.5">CDB <tspan fill="#79c0ff">RCAT</tspan> · PDB <tspan fill="#79c0ff">RCATPDB</tspan></text>
+  <text x="342" y="326" text-anchor="middle" fill="#bc8cff" font-size="10">RMAN catalog · schema rman_cat</text>
+  <text x="342" y="343" text-anchor="middle" fill="#e6edf3" font-size="10">systemd auto-start (no GI)</text>
+  <text x="342" y="360" text-anchor="middle" fill="#8b949e" font-size="9.5">192.168.56.14 · 4 GB RAM</text>
+
+  <rect x="472" y="252" width="240" height="124" rx="8" fill="#161b22" stroke="#3fb950" stroke-width="1.6"/>
+  <rect x="472" y="252" width="240" height="26" rx="8" fill="rgba(63,185,80,0.16)"/>
+  <text x="592" y="270" text-anchor="middle" fill="#56d364" font-weight="700" font-size="12.5">/mnt/rman_bck/  (vboxsf)</text>
+  <text x="592" y="292" text-anchor="middle" fill="#e6edf3" font-size="10.5">1.9 TB shared with Windows host</text>
+  <text x="592" y="308" text-anchor="middle" fill="#e6edf3" font-size="10">├── full/    compressed FULL bsets</text>
+  <text x="592" y="324" text-anchor="middle" fill="#e6edf3" font-size="10">├── incr_merge/  image copy + L1</text>
+  <text x="592" y="340" text-anchor="middle" fill="#e6edf3" font-size="10">├── arch/   archivelog backups</text>
+  <text x="592" y="356" text-anchor="middle" fill="#e6edf3" font-size="10">└── cf/     controlfile autobackup</text>
+
+  <line x1="404" y1="113" x2="500" y2="113" stroke="#3fb950" stroke-width="1.8" marker-end="url(#aGreen)"/>
+  <text x="450" y="106" text-anchor="middle" fill="#3fb950" font-size="9" font-weight="600">DG redo</text>
+  <text x="450" y="128" text-anchor="middle" fill="#3fb950" font-size="8.5">DEST_2 SYNC NOAFFIRM</text>
+
+  <path d="M 220,180 Q 280,210 290,252" stroke="#58a6ff" stroke-width="1.8" fill="none" marker-end="url(#aBlue)"/>
+  <text x="244" y="220" text-anchor="middle" fill="#58a6ff" font-size="9" font-weight="600">RMAN catalog connect</text>
+  <text x="244" y="232" text-anchor="middle" fill="#58a6ff" font-size="8.5">1521/RCATPDB</text>
+
+  <path d="M 320,180 Q 460,210 520,252" stroke="#F48024" stroke-width="2.2" fill="none" marker-end="url(#aOrange)"/>
+  <text x="430" y="218" text-anchor="middle" fill="#F48024" font-size="9" font-weight="600">backup pieces · archlogs</text>
+
+  <path d="M 400,170 Q 380,210 380,252" stroke="#C74634" stroke-width="1.5" fill="none" stroke-dasharray="6,4" marker-end="url(#aRed)" opacity="0.6"/>
+  <text x="378" y="208" text-anchor="end" fill="#C74634" font-size="9" font-weight="600" opacity="0.8">DEST_3 DEFERRED</text>
+  <text x="378" y="220" text-anchor="end" fill="#C74634" font-size="8" opacity="0.7">Lesson #29</text>
+
+  <line x1="452" y1="314" x2="472" y2="314" stroke="#8b949e" stroke-width="1.4" marker-end="url(#aGreen)" stroke-dasharray="3,3"/>
+
+  <rect x="20" y="408" width="838" height="40" rx="6" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+  <text x="32" y="425" fill="#8b949e" font-size="10" font-weight="600">Parent FSFO/TAC LAB:</text>
+  <text x="32" y="439" fill="#8b949e" font-size="9.5">prim01 + prim02 (RAC) ↔ stby01 (DG) — extended in this subproject with rcat01 (RMAN catalog + ZDLRA-Like simulation).</text>
+  <text x="730" y="430" text-anchor="end" fill="#79c0ff" font-size="9">Oracle 26ai 23.26.1.0.0 · OL 8.10</text>
+  <text x="730" y="442" text-anchor="end" fill="#79c0ff" font-size="9">VirtualBox 7.x · vboxsf shared</text>
+</svg>

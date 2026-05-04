@@ -13,6 +13,7 @@
 ![Tests](https://img.shields.io/badge/Tests-6%2F6_passed-brightgreen)
 ![License](https://img.shields.io/badge/license-Apache_2.0-blue)
 ![Docs](https://img.shields.io/badge/docs-bilingual_PL%2FEN-yellow)
+![ZDLRA-Like](https://img.shields.io/badge/Backup-ZDLRA__like-purple)
 
 ---
 
@@ -22,6 +23,7 @@
 |---|---|
 | 📘 [`concept/`](./concept/) | **Koncepcja architektury** — bash, docs, sql, systemd. FSFO + TAC guide jako reference design (19c-baseline z 26ai-aware wariantami). 7 dokumentów (DESIGN, FSFO-GUIDE, TAC-GUIDE, INTEGRATION, FAILOVER-WALKTHROUGH, PLAN, CODE-REVIEW), 12 SQL, 4 bash, 3 systemd unit. |
 | 🔧 [`lab/`](./lab/) | **Wdrożenie laboratorium** — kompletna automatyzacja od pustych VM po działający MAA. Kickstart OL8.10, silent GI/DB install, broker, Multi-Observer, TAC service, klient Java UCP. 9 kroków dokumentacji + 19 skryptów + 14 SQL + 5 kickstart configs. |
+| 💾 [`ZDLRA_like/`](./ZDLRA_like/) | **NEW: Warstwa Backup (ZDLRA-like)** — domknięcie stacku MAA. Pojedyncza instancja (`rcat01`), katalog RMAN, symulacja ZDLRA (image copy + L1 merge) oraz autonomiczne testy AI. |
 | 📚 [`legacy/lessons-learned/`](./legacy/lessons-learned/) | **Archiwum knowledge base** — `FIXES_LOG.md` (294 KB, 96 fixów) z pierwszej iteracji środowiska. Materiał edukacyjny — kontrintuicyjne zjawiska Oracle, które prawdopodobnie pojawią się przy odtwarzaniu. |
 
 ---
@@ -36,6 +38,7 @@
 | **🧪 Curious — co z tego wyszło?** | [`Finalne testy`](https://krzysztof-i-cabaj.github.io/oracle-26ai-fsfo-tac-lab/test_results_PL.html) — 6 scenariuszy testowych, wyniki, lekcje |
 | **🐛 Debug — błąd Oracle X** | Najpierw [`legacy/lessons-learned/FIXES_LOG_PL.md`](./legacy/lessons-learned/FIXES_LOG_PL.md) (96 fixów chronologicznie), potem [`lab/EXECUTION_LOG_PL.md`](./lab/EXECUTION_LOG_PL.md) (S01–S28) |
 | **📊 Case study** | [`lab/AUTONOMOUS_ACCESS_LOG_PL.md`](./lab/AUTONOMOUS_ACCESS_LOG_PL.md) — 975-linijkowy transcript sesji autonomous testów MAA + Executive Summary |
+| **💾 Backup & Recovery — jak testowano PITR?** | Zobacz podprojekt [`ZDLRA_like/README_PL.md`](./ZDLRA_like/README_PL.md) lub od razu interaktywną [landing page ZDLRA](https://krzysztof-i-cabaj.github.io/oracle-26ai-fsfo-tac-lab/ZDLRA_like/zdlra_PL.html) |
 
 ---
 
