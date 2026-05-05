@@ -307,7 +307,7 @@ SQL
 
 [EN] **Empirically verified 2026-05-04 iter.14 autonomous fix:** despite correct configuration (TNS, listener, DG_CONFIG, DB_UNIQUE_NAME, pwfile binary sync), real-time redo to rcat01 returns **`ORA-16009: invalid redo transport destination`**. Reason: Oracle DG redo transport requires **physical standby** target — identical `db_name` + `dbid`. RCAT has `db_name=RCAT/dbid=1004435869`, PRIM has `db_name=PRIM/dbid=229119773`. Fundamental mismatch.
 
-**Pełen log diagnostyki + fix-u:** [autonomous_dest3_log_PL.md](../zdlra-backup-live-test/logs/dautonomous_dest3_log_PL.md) (PL) / [autonomous_dest3_log.md](../zdlra-backup-live-test/logs/autonomous_dest3_log.md) (EN).
+**Pełen log diagnostyki + fix-u:** [autonomous_dest3_log_PL.md](../zdlra-backup-live-test/logs/autonomous_dest3_log_PL.md) (PL) / [autonomous_dest3_log.md](../zdlra-backup-live-test/logs/autonomous_dest3_log.md) (EN).
 
 **Aby usunąć ERROR z v$archive_dest** (po próbie setup-u DEST_3):
 ```sql
