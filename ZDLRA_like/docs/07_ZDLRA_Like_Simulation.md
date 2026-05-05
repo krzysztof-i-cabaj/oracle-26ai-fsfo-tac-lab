@@ -303,7 +303,7 @@ SQL
 - 🔒 **Real-time redo (`LOG_ARCHIVE_DEST_3`)** → DEFERRED, cannot be enabled without a full physical standby of PRIM on rcat01
 - ✅ **Practical workaround for ~15 min RPO**: `rman_archivelog_only.sh` cron on PRIM (archive logs land in `/mnt/rman_bck/arch/` shared folder, accessible from rcat01)
 
-**Full diagnostic + fix log:** [autonomous_dest3_log.md](../autonomous_dest3_log.md) (EN) / [autonomous_dest3_log_PL.md](../autonomous_dest3_log_PL.md) (PL).
+**Full diagnostic + fix log:** [autonomous_dest3_log.md](../zdlra-backup-live-test/logs/autonomous_dest3_log.md) (EN) / [autonomous_dest3_log_PL.md](../zdlra-backup-live-test/logs/autonomous_dest3_log_PL.md) (PL).
 
 **To clear ERROR from v$archive_dest** (after attempting DEST_3 setup):
 ```sql
