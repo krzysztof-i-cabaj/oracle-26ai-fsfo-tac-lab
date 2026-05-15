@@ -21,7 +21,7 @@
 
 | Katalog | Co zawiera |
 |---|---|
-| 📘 [`concept/`](./concept/) | **Koncepcja architektury** — bash, docs, sql, systemd. FSFO + TAC guide jako reference design (19c-baseline z 26ai-aware wariantami). 7 dokumentów (DESIGN, FSFO-GUIDE, TAC-GUIDE, INTEGRATION, FAILOVER-WALKTHROUGH, PLAN, CODE-REVIEW), 12 SQL, 4 bash, 3 systemd unit. |
+| 📘 [`concept/`](./concept/) | **Koncepcja architektury** — bash, docs, sql, systemd. FSFO + TAC guide jako reference design (19c-baseline z 26ai-aware wariantami, w tym 26ai-specific rozszerzenia monitoringu: widoki Broker w `fsfo_monitor_26ai.sql` i ACCHK protection coverage w `tac_replay_monitor_26ai.sql`). 7 dokumentów (DESIGN, FSFO-GUIDE, TAC-GUIDE, INTEGRATION, FAILOVER-WALKTHROUGH, PLAN, CODE-REVIEW), 12 SQL, 4 bash, 3 systemd unit. |
 | 🔧 [`lab/`](./lab/) | **Wdrożenie laboratorium** — kompletna automatyzacja od pustych VM po działający MAA. Kickstart OL8.10, silent GI/DB install, broker, Multi-Observer, TAC service, klient Java UCP. 9 kroków dokumentacji + 19 skryptów + 14 SQL + 5 kickstart configs. |
 | 💾 [`ZDLRA_like/`](./ZDLRA_like/) | **NEW: Warstwa Backup (ZDLRA-like)** — domknięcie stacku MAA. Pojedyncza instancja (`rcat01`), katalog RMAN, symulacja ZDLRA (image copy + L1 merge) oraz autonomiczne testy AI. |
 | 📚 [`legacy/lessons-learned/`](./legacy/lessons-learned/) | **Archiwum knowledge base** — `FIXES_LOG.md` (294 KB, 96 fixów) z pierwszej iteracji środowiska. Materiał edukacyjny — kontrintuicyjne zjawiska Oracle, które prawdopodobnie pojawią się przy odtwarzaniu. |
@@ -88,4 +88,4 @@ Kod skryptów/dokumentacji: **Apache-2.0** (patrz [`LICENSE`](./LICENSE)).
 ## 👤 Autor
 
 **KCB Kris** · Oracle DBA
-Pierwsza iteracja: 2026-04-23 · Ostatnia sesja S28: 2026-04-29
+Pierwsza iteracja: 2026-04-23 · Ostatnia sesja S29: 2026-05-15

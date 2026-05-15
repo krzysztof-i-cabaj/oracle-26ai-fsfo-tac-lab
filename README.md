@@ -21,7 +21,7 @@
 
 | Directory | Contents |
 |---|---|
-| 📘 [`concept/`](./concept/) | **Architecture concept** — bash, docs, sql, systemd. FSFO + TAC guide as reference design (19c baseline with 26ai-aware variants). 7 documents (DESIGN, FSFO-GUIDE, TAC-GUIDE, INTEGRATION, FAILOVER-WALKTHROUGH, PLAN, CODE-REVIEW), 12 SQL, 4 bash, 3 systemd units. |
+| 📘 [`concept/`](./concept/) | **Architecture concept** — bash, docs, sql, systemd. FSFO + TAC guide as reference design (19c baseline with 26ai-aware variants, incl. 26ai-specific monitoring extensions: Broker views in `fsfo_monitor_26ai.sql` and ACCHK protection coverage in `tac_replay_monitor_26ai.sql`). 7 documents (DESIGN, FSFO-GUIDE, TAC-GUIDE, INTEGRATION, FAILOVER-WALKTHROUGH, PLAN, CODE-REVIEW), 12 SQL, 4 bash, 3 systemd units. |
 | 🔧 [`lab/`](./lab/) | **Lab deployment** — full automation from empty VMs to working MAA. OL 8.10 kickstart, silent GI/DB install, broker, Multi-Observer, TAC service, Java UCP client. 9 documentation steps + 19 scripts + 14 SQL + 5 kickstart configs. |
 | 💾 [`ZDLRA_like/`](./ZDLRA_like/) | **NEW: Backup Layer (ZDLRA-like)** — completes the MAA stack. Single instance (`rcat01`), RMAN catalog, ZDLRA simulation (image copy + L1 merge), and autonomous AI tests. |
 | 📚 [`legacy/lessons-learned/`](./legacy/lessons-learned/) | **Knowledge base archive** — `FIXES_LOG.md` (294 KB, 96 fixes) from the first environment iteration. Educational material — counter-intuitive Oracle behaviors likely to resurface during reproduction. |
@@ -90,4 +90,4 @@ Script and documentation source: **Apache-2.0** (see [`LICENSE`](./LICENSE)).
 ## 👤 Author
 
 **KCB Kris** · Oracle DBA
-First iteration: 2026-04-23 · Latest session S28: 2026-04-29
+First iteration: 2026-04-23 · Latest session S29: 2026-05-15
