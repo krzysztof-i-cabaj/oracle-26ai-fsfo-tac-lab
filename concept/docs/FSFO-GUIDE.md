@@ -1614,6 +1614,46 @@ FROM dual;
 
 Integration with PagerDuty / OpsGenie via the exit code in crontab.
 
+### 9.4 23ai/26ai-only views
+
+Oracle 23ai/26ai introduces 4 additional views that extend FSFO/DG Broker diagnostics.
+These views **do not exist** in 19c — for 19c use sections 9.1-9.3 and `sql/fsfo_monitor.sql`.
+
+| View (26ai-only) | Purpose |
+|---|---|
+| `V$FAST_START_FAILOVER_CONFIG` | Single-row FSFO config + status snapshot (mode, threshold, lag limit, observer state) — replaces UNION of `V$DATABASE` columns and `DBA_DG_BROKER_CONFIG_PROPERTIES` rows |
+| `V$DG_BROKER_PROPERTY` | Broker properties with `MEMBER` / `SCOPE` / `VALID_ROLE` context (per-DB and per-instance for RAC) — superset of `DBA_DG_BROKER_CONFIG_PROPERTIES` |
+| `V$DG_BROKER_ROLE_CHANGE` | Audit of last 10 role changes (`EVENT`, `OLD_PRIMARY` → `NEW_PRIMARY`, begin/end times, FS failover reason) — replaces alert.log parsing for switchover/failover audit |
+| `V$FS_LAG_HISTOGRAM` | Failover lag distribution histogram per thread and lag_type (seconds buckets) — SLA analysis and trend monitoring |
+
+#### `EVENT` values in `V$DG_BROKER_ROLE_CHANGE`
+
+| Value | Meaning | Verdict |
+|---|---|---|
+| `Switchover` | Planned role change via DGMGRL | OK |
+| `Fast-Start Failover` | Automatic failover initiated by the observer (FSFO) | INFO — check root cause |
+| `Failover` | Manual failover by DBA | WARN — unplanned |
+| `Immediate Failover` | Immediate failover (potential data loss) | WARN — review carefully |
+
+#### `STATUS` values in `V$FAST_START_FAILOVER_CONFIG`
+
+- `SYNCHRONIZED` — primary and target standby in sync (PASS)
+- `TARGET UNDER LAG LIMIT` / `TARGET OVER LAG LIMIT` — lag below/above threshold (PASS / CRIT)
+- `UNSYNCHRONIZED` / `STALLED` / `REINSTATE FAILED` — intervention required (CRIT)
+- `BYSTANDER` / `DISABLED` / `SUSPENDED` — FSFO inactive (WARN)
+- `PRIMARY UNOBSERVED` — observer not connected to primary (CRIT)
+
+#### Implementation in the monitoring script
+
+The `sql/fsfo_monitor_26ai.sql` script (section 8) covers all four views with ready-to-use PASS/CRIT/WARN/INFO logic. See commit `feat(monitor): add SEKCJA 8 with 26ai-specific Broker views`.
+
+```bash
+# 26ai variant — requires version >= 23ai
+sqlplus -s / as sysdba @sql/fsfo_monitor_26ai.sql > reports/fsfo_$(date +%Y%m%d_%H%M).log
+```
+
+> **Compatibility note:** In a mixed cluster (19c primary + 26ai standby or vice versa), run `fsfo_monitor.sql` on the 19c node and `fsfo_monitor_26ai.sql` on the 23ai/26ai node. Do not force 26ai-only views on 19c — the query returns `ORA-00942: table or view does not exist`.
+
 ---
 
 ## 10. Troubleshooting

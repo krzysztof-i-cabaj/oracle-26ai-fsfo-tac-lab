@@ -923,6 +923,101 @@ Run section 7 of [sql/fsfo_monitor.sql](../sql/fsfo_monitor.sql) every hour:
 
 **Threshold alerts:** see [DESIGN § 7.4](DESIGN.md#74-tac-replay-success-rate).
 
+### 9.4 ACCHK — Application Continuity Protection Coverage (26ai / 19.11+)
+
+Sections 9.1-9.3 monitor **reactively** — what happened **after** replays. ACCHK (Application Continuity Check) is a **proactive** tool: it measures the **percentage of requests** that are actually protected by TAC. Available since Oracle 19c Release Update 19.11+ and fully supported in 23ai/26ai.
+
+#### ACCHK workflow
+
+```sql
+-- STEP 1: Create ACCHK views (one-time, as SYS or DBA)
+EXEC dbms_app_cont_admin.acchk_views();
+-- Creates 4 DBA_ACCHK_* views + the _ACCHK_READ_ role.
+
+-- STEP 2: (optional) Filter to a specific service
+EXEC dbms_app_cont_admin.acchk_set_filter(
+       DBMS_APP_CONT_ADMIN.SERVICE_FILTER, 'TPURGENT');
+
+-- STEP 3: Enable collection (timeout 60-86400 seconds)
+EXEC dbms_app_cont_admin.acchk_set(true, 3600);
+
+-- STEP 4: Run a representative workload
+-- (real application traffic or load test — at least 15-30 minutes for reliable metrics)
+
+-- STEP 5: Disable collection
+EXEC dbms_app_cont_admin.acchk_set(false);
+
+-- STEP 6: Generate the report (levels: SUMMARY / WARNING / FULL)
+EXEC dbms_app_cont_report.acchk_report();
+
+-- STEP 7: After analysis — purge collected data (optional)
+EXEC dbms_app_cont_admin.acchk_purge(purge_all=>true);
+```
+
+#### ACCHK views
+
+| View | Purpose |
+|---|---|
+| `DBA_ACCHK_STATISTICS_SUMMARY` | Overall protection metrics (% protected over calls / time) — the single most important TAC metric |
+| `DBA_ACCHK_STATISTICS` | Per-session statistics |
+| `DBA_ACCHK_EVENTS_SUMMARY` | Aggregated event counts per service / module |
+| `DBA_ACCHK_EVENTS` | Individual protection events (per session) |
+
+#### `EVENT_TYPE` values in `DBA_ACCHK_EVENTS`
+
+| `EVENT_TYPE` | Meaning | Verdict |
+|---|---|---|
+| `DISABLED` | The session deliberately disabled AC (e.g. `failover_type=NONE`) | INFO |
+| `NEVER ENABLED` | The session never had AC — the service config does not enable TAC | WARN — review `dba_services.failover_type` |
+| `NOT ENABLING` | AC could not engage due to environment conditions | WARN — see the `INFO` column for cause |
+| `REPLAY FAILED` | A replay attempt failed | CRIT — correlate with `ERROR_CODE` (ORA-) |
+
+#### Sample queries
+
+```sql
+-- Main coverage metric (single-row report)
+SELECT * FROM dba_acchk_statistics_summary;
+
+-- Event breakdown for the last 7 days
+SELECT event_type, error_code, COUNT(*) AS event_count
+FROM   dba_acchk_events
+WHERE  timestamp > SYSTIMESTAMP - INTERVAL '7' DAY
+GROUP  BY event_type, error_code
+ORDER  BY event_count DESC;
+
+-- Top application modules without AC ('NEVER ENABLED')
+SELECT service_name, module, COUNT(*) AS event_count
+FROM   dba_acchk_events
+WHERE  event_type = 'NEVER ENABLED'
+GROUP  BY service_name, module
+ORDER  BY event_count DESC
+FETCH  FIRST 10 ROWS ONLY;
+```
+
+#### Implementation in the script
+
+The [`sql/tac_replay_monitor_26ai.sql`](../sql/tac_replay_monitor_26ai.sql) script, **section 7**, contains ready-to-use ACCHK queries with a preflight check (if the views do not exist, it prints setup instructions instead of failing). See commit `feat(monitor): add SEKCJA 7 with ACCHK protection coverage`.
+
+```bash
+sqlplus -s / as sysdba @sql/tac_replay_monitor_26ai.sql > reports/tac_$(date +%Y%m%d_%H%M).log
+```
+
+> **Requirements:** Oracle 19.11+ (section 9.4); the `_ACCHK_READ_` role for non-DBA users. The `SERVICE_FILTER` filter limits collection to a single service (lower overhead in production).
+
+### 9.5 26ai-only TAC features
+
+Oracle 23ai/26ai introduces 5 new features that strengthen TAC. They do not add monitoring views, but they affect configuration and coverage:
+
+| Feature | What it provides | Configuration |
+|---|---|---|
+| **Resumable Cursors** | `SELECT` cursors in `FETCH` survive transaction boundaries — TAC can resume iteration after failover | Automatic for `failover_type=AUTO` (TAC) |
+| **`FAILOVER_RESTORE=LEVEL2`** | Server-side checkpoint + restore of session state (NLS, context, session parameters) — stronger than `LEVEL1` | `DBMS_SERVICE.MODIFY_SERVICE(... failover_restore => 'LEVEL2')` |
+| **`DBMS_ROLLING` support** | TAC works during a rolling upgrade (major version) — sessions survive the migration | `DBMS_ROLLING.SWITCHOVER` honors TAC sessions |
+| **`RESET_STATE` service attribute** | Automatic session state cleanup between requests — prevents "session state pollution" | `DBMS_SERVICE.MODIFY_SERVICE(... reset_state => 'LEVEL1')` |
+| **Customizable Side Effects** | Side effects (e.g. SMS, email from a procedure) are markable — TAC does not repeat them after replay | `DBMS_APP_CONT.SET_HIGH_VALUE_OPS` |
+
+> **Note:** In a mixed 19c + 26ai cluster these features work **only** on 26ai nodes. The `tac_replay_monitor.sql` script (19c variant) does not monitor ACCHK or the new features — use `tac_replay_monitor_26ai.sql` on the 26ai nodes.
+
 ---
 
 ## 10. Troubleshooting & Best Practices

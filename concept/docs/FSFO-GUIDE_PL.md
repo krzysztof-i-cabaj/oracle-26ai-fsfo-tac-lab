@@ -1,5 +1,3 @@
-> [🇬🇧 English](./FSFO-GUIDE.md) | 🇵🇱 Polski
-
 # 🔄 FSFO-GUIDE.md — Fast-Start Failover dla Oracle 19c
 
 ![Oracle 19c](https://img.shields.io/badge/Oracle-19c-F80000?logo=oracle&logoColor=white)
@@ -1633,6 +1631,46 @@ FROM dual;
 - `exit 2` — CRITICAL (FSFO disabled, Observer down, lag > threshold)
 
 Integracja z PagerDuty / OpsGenie przez exit code w crontab.
+
+### 9.4 Widoki dostępne tylko w 23ai/26ai / 23ai/26ai-only views
+
+Oracle 23ai/26ai wprowadza 4 dodatkowe widoki rozszerzające diagnostykę FSFO/DG Broker.
+W 19c te widoki **nie istnieją** — używaj sekcji 9.1-9.3 oraz `sql/fsfo_monitor.sql`.
+
+| View (26ai-only) | Purpose [EN] | Opis [PL] |
+|---|---|---|
+| `V$FAST_START_FAILOVER_CONFIG` | Single-row FSFO config + status (mode, threshold, lag limit, observer state) | Jednowierszowy snapshot konfiguracji FSFO i statusu (zamiast UNION z `V$DATABASE` + `DBA_DG_BROKER_CONFIG_PROPERTIES`) |
+| `V$DG_BROKER_PROPERTY` | Broker properties with MEMBER/SCOPE/VALID_ROLE context (per-DB + per-instance for RAC) | Właściwości brokera z kontekstem członka/zakresu/roli — rozszerzenie `DBA_DG_BROKER_CONFIG_PROPERTIES` |
+| `V$DG_BROKER_ROLE_CHANGE` | Audit of last 10 role changes (EVENT, OLD_PRIMARY → NEW_PRIMARY, BEGIN/END times, FS reason) | Audyt ostatnich 10 zmian roli — zastępuje parsowanie alert.log dla switchover/failover |
+| `V$FS_LAG_HISTOGRAM` | Failover lag distribution histogram (per thread, per lag_type, in seconds buckets) | Rozkład czasów lag failover — analiza SLA i trendów |
+
+#### Wartości `EVENT` w `V$DG_BROKER_ROLE_CHANGE`
+
+| Wartość | Znaczenie | Ocena |
+|---|---|---|
+| `Switchover` | Planowana zmiana roli (DGMGRL → switchover) | OK |
+| `Fast-Start Failover` | Automatyczny failover przez Observer (FSFO) | INFO — sprawdź przyczynę |
+| `Failover` | Manualny failover przez DBA | WARN — nieplanowany |
+| `Immediate Failover` | Natychmiastowy failover (potencjalna utrata danych) | WARN — review |
+
+#### Wartości `STATUS` w `V$FAST_START_FAILOVER_CONFIG`
+
+- `SYNCHRONIZED` — primary i target standby zsynchronizowane (PASS)
+- `TARGET UNDER LAG LIMIT` / `TARGET OVER LAG LIMIT` — lag pod/nad progiem (PASS / CRIT)
+- `UNSYNCHRONIZED` / `STALLED` / `REINSTATE FAILED` — wymagana interwencja (CRIT)
+- `BYSTANDER` / `DISABLED` / `SUSPENDED` — FSFO nieaktywne (WARN)
+- `PRIMARY UNOBSERVED` — observer niepołączony z primary (CRIT)
+
+#### Implementacja w skrypcie monitorującym
+
+Skrypt `sql/fsfo_monitor_26ai.sql` (sekcja 8) pokrywa wszystkie 4 widoki z gotową logiką oceny PASS/CRIT/WARN/INFO. Patrz commit `feat(monitor): add SEKCJA 8 with 26ai-specific Broker views`.
+
+```bash
+# 26ai variant — wymagana wersja >= 23ai
+sqlplus -s / as sysdba @sql/fsfo_monitor_26ai.sql > reports/fsfo_$(date +%Y%m%d_%H%M).log
+```
+
+> **Uwaga kompatybilności:** Jeśli klaster jest mieszany (19c primary + 26ai standby lub vice versa), uruchamiaj `fsfo_monitor.sql` na 19c, a `fsfo_monitor_26ai.sql` na 23ai/26ai. Nie próbuj forsować 26ai-only widoków na 19c — query zwróci `ORA-00942: table or view does not exist`.
 
 ---
 
