@@ -1,22 +1,34 @@
 -- ==============================================================================
 -- Tytul:        fsfo_monitor_26ai.sql
--- Opis:         Ciagly monitoring stanu FSFO i TAC (7 sekcji) — 23ai/26ai variant.
---               Patch sekcja 7: GV$REPLAY_STAT_SUMMARY usuniety w 23ai/26ai
+-- Opis:         Ciagly monitoring stanu FSFO i TAC (8 sekcji) — 23ai/26ai variant.
+--               Sekcja 7: GV$REPLAY_STAT_SUMMARY usuniety w 23ai/26ai
 --               -> agregacja per-instance z GV$REPLAY_CONTEXT (per-context view
 --               dla sequences, sysdate, sysguid, lobs values captured/replayed).
---               Reszta skryptu (sekcje 1-6) identyczna z fsfo_monitor.sql.
+--               Sekcja 8: 26ai-only Broker views (V$FAST_START_FAILOVER_CONFIG,
+--               V$DG_BROKER_PROPERTY, V$DG_BROKER_ROLE_CHANGE, V$FS_LAG_HISTOGRAM).
 -- Description [EN]: 26ai-specific variant. Section 7 patched: GV$REPLAY_STAT_SUMMARY
 --               removed in 23ai/26ai -> aggregation from GV$REPLAY_CONTEXT.
+--               Section 8: 26ai-only Broker views (config snapshot, properties,
+--               role change audit, lag histogram).
 --
 -- Autor:        KCB Kris
 -- Data:         2026-04-27
--- Wersja:       1.0
+-- Wersja:       1.1
 --
--- Zmiany v1.0 (FIX-090):
+-- Zmiany v1.0 (2026-04-27, FIX-090):
 --   - Bazuje na fsfo_monitor.sql v1.0 (2026-04-23).
 --   - Sekcja 7: zastapiono SELECT FROM gv$replay_stat_summary agregacja per-inst_id
 --     z gv$replay_context. Status logic: IDLE/PASS/WARN.
 --   - Reszta skryptu bit-identyczna z fsfo_monitor.sql.
+--
+-- Zmiany v1.1 (2026-05-15):
+--   - Dodano SEKCJA 8: 26ai-specific Broker views.
+--   - 8.1: V$FAST_START_FAILOVER_CONFIG — jednowierszowy snapshot konfig+status.
+--   - 8.2: V$DG_BROKER_PROPERTY — broker properties z kontekstem MEMBER/SCOPE.
+--   - 8.3: V$DG_BROKER_ROLE_CHANGE — audit ostatnich 10 zmian roli (zastepuje
+--          parsowanie alert.log dla switchover/failover).
+--   - 8.4: V$FS_LAG_HISTOGRAM — rozklad lag failover w czasie (SLA analysis).
+--   - Kolumny zweryfikowane wg Oracle Database Reference 23ai (refrn/).
 --
 -- Wymagania [PL]:    - Oracle 23ai/26ai EE z wlaczonym DG Broker i FSFO
 --                    - Rola SELECT_CATALOG_ROLE
@@ -342,6 +354,152 @@ WHERE  name NOT LIKE 'SYS%'
   AND  name NOT LIKE '%XDB%'
 ORDER  BY name;
 
+-- ============================================================================
+-- SEKCJA 8: 26ai-specific Broker views (FSFO config + history + lag distribution)
+-- Section 8: 26ai-only views — single-row FSFO config, broker properties,
+--            role change audit, failover lag histogram
+-- ============================================================================
+-- Te 4 widoki wprowadzono w 23ai/26ai. Uzupelniaja diagnostyke z sekcji 1-7:
+--   V$FAST_START_FAILOVER_CONFIG — jednowierszowy snapshot konfig FSFO + status
+--   V$DG_BROKER_PROPERTY         — szczegolowe broker properties (per DB + scope)
+--   V$DG_BROKER_ROLE_CHANGE      — audit ostatnich 10 zmian roli (zastepuje
+--                                  parsowanie alert.log dla switchover/failover)
+--   V$FS_LAG_HISTOGRAM           — rozklad lag failover w czasie (SLA analysis)
+-- Wymaga Oracle 23ai/26ai (w 19c tych view'ow nie ma). Kolumny zweryfikowane
+-- wg Oracle Database Reference 23ai (refrn/V-*.html).
+
+PROMPT
+PROMPT --------------------------------------------------------------------------------
+PROMPT  SEKCJA 8 / SECTION 8: 26ai Broker views (FSFO config + role changes + lag hist)
+PROMPT --------------------------------------------------------------------------------
+
+-- 8.1: V$FAST_START_FAILOVER_CONFIG — jednowierszowy konfig+status FSFO (26ai)
+COLUMN metryka_fsfo  FORMAT A28 HEADING "Metryka / Metric"
+COLUMN wartosc_fsfo  FORMAT A45 HEADING "Wartosc / Value"
+COLUMN ocena_fsfo    FORMAT A6  HEADING "Ocena"
+
+PROMPT
+PROMPT 8.1 FSFO config snapshot (v$fast_start_failover_config):
+SELECT * FROM (
+    SELECT 1 AS ord, 'FSFO Mode'             AS metryka_fsfo, fast_start_failover_mode AS wartosc_fsfo,
+           CASE WHEN fast_start_failover_mode = 'ZERO DATA LOSS' THEN 'PASS'
+                WHEN fast_start_failover_mode = 'DISABLED'       THEN 'CRIT'
+                ELSE 'INFO' END AS ocena_fsfo FROM v$fast_start_failover_config
+    UNION ALL SELECT 2, 'FSFO Status', status,
+           CASE WHEN status = 'SYNCHRONIZED' THEN 'PASS'
+                WHEN status IN ('UNSYNCHRONIZED','TARGET OVER LAG LIMIT','STALLED','REINSTATE FAILED') THEN 'CRIT'
+                ELSE 'WARN' END FROM v$fast_start_failover_config
+    UNION ALL SELECT 3, 'Current Target',     current_target,                       'INFO' FROM v$fast_start_failover_config
+    UNION ALL SELECT 4, 'Protection Mode',    protection_mode,
+           CASE WHEN protection_mode = 'MAXAVAILABILITY' THEN 'PASS' ELSE 'WARN' END FROM v$fast_start_failover_config
+    UNION ALL SELECT 5, 'Observer Present',   observer_present,
+           CASE WHEN observer_present = 'YES' THEN 'PASS' ELSE 'CRIT' END           FROM v$fast_start_failover_config
+    UNION ALL SELECT 6, 'Observer Host',      observer_host,                        'INFO' FROM v$fast_start_failover_config
+    UNION ALL SELECT 7, 'Threshold (s)',      TO_CHAR(threshold),                   'INFO' FROM v$fast_start_failover_config
+    UNION ALL SELECT 8, 'Lag Limit (s)',      TO_CHAR(lag_limit),                   'INFO' FROM v$fast_start_failover_config
+    UNION ALL SELECT 9, 'Lag Type',           lag_type,                             'INFO' FROM v$fast_start_failover_config
+    UNION ALL SELECT 10,'Lag Grace Time (s)', TO_CHAR(lag_grace_time),              'INFO' FROM v$fast_start_failover_config
+    UNION ALL SELECT 11,'Auto Reinstate',     auto_reinstate,
+           CASE WHEN UPPER(auto_reinstate) = 'TRUE' THEN 'PASS' ELSE 'WARN' END     FROM v$fast_start_failover_config
+    UNION ALL SELECT 12,'Observer Override',  observer_override,                    'INFO' FROM v$fast_start_failover_config
+    UNION ALL SELECT 13,'Observer Reconnect (s)', TO_CHAR(observer_reconnect),      'INFO' FROM v$fast_start_failover_config
+    UNION ALL SELECT 14,'Ping Interval (ms)', TO_CHAR(ping_interval),               'INFO' FROM v$fast_start_failover_config
+    UNION ALL SELECT 15,'Ping Retry',         TO_CHAR(ping_retry),                  'INFO' FROM v$fast_start_failover_config
+    UNION ALL SELECT 16,'Shutdown Primary',   shutdown_primary,                     'INFO' FROM v$fast_start_failover_config
+)
+ORDER BY ord;
+
+-- 8.2: V$DG_BROKER_PROPERTY — broker properties z kontekstem MEMBER/SCOPE (26ai)
+COLUMN member_dg     FORMAT A18 HEADING "Member"
+COLUMN dg_role       FORMAT A15 HEADING "Rola"
+COLUMN property_dg   FORMAT A32 HEADING "Property"
+COLUMN value_dg      FORMAT A22 HEADING "Value"
+COLUMN scope_dg      FORMAT A14 HEADING "Scope"
+
+PROMPT
+PROMPT 8.2 Broker properties (v$dg_broker_property) - filter na kluczowe FSFO/lag:
+SELECT
+    member          AS member_dg,
+    dataguard_role  AS dg_role,
+    property        AS property_dg,
+    value           AS value_dg,
+    scope           AS scope_dg
+FROM   v$dg_broker_property
+WHERE  property IN (
+    'FastStartFailoverThreshold',
+    'FastStartFailoverLagLimit',
+    'FastStartFailoverAutoReinstate',
+    'FastStartFailoverTarget',
+    'FastStartFailoverPmyShutdown',
+    'FastStartFailoverLagType',
+    'FastStartFailoverLagGraceTime',
+    'ObserverOverride',
+    'ObserverReconnect',
+    'ObserverPingInterval',
+    'ObserverPingRetry',
+    'TransportLagThreshold',
+    'ApplyLagThreshold'
+)
+ORDER  BY member, property;
+
+-- 8.3: V$DG_BROKER_ROLE_CHANGE — ostatnie 10 zmian roli (audit, zastepuje alert.log)
+COLUMN begin_time_str   FORMAT A20 HEADING "Begin time"
+COLUMN end_time_str     FORMAT A20 HEADING "End time"
+COLUMN event_typ        FORMAT A20 HEADING "Event"
+COLUMN old_primary_db   FORMAT A18 HEADING "Old primary"
+COLUMN new_primary_db   FORMAT A18 HEADING "New primary"
+COLUMN ocena_change     FORMAT A6  HEADING "Ocena"
+
+PROMPT
+PROMPT 8.3 Ostatnie 10 zmian roli (v$dg_broker_role_change):
+SELECT * FROM (
+    SELECT
+        TO_CHAR(begin_time, 'YYYY-MM-DD HH24:MI:SS') AS begin_time_str,
+        TO_CHAR(end_time,   'YYYY-MM-DD HH24:MI:SS') AS end_time_str,
+        event                                        AS event_typ,
+        old_primary                                  AS old_primary_db,
+        new_primary                                  AS new_primary_db,
+        CASE
+            WHEN event = 'Switchover'           THEN 'PASS'
+            WHEN event = 'Fast-Start Failover'  THEN 'INFO'
+            WHEN event = 'Failover'             THEN 'WARN'
+            WHEN event = 'Immediate Failover'   THEN 'WARN'
+            ELSE 'INFO'
+        END AS ocena_change
+    FROM   v$dg_broker_role_change
+    ORDER  BY begin_time DESC
+)
+WHERE ROWNUM <= 10;
+
+PROMPT
+PROMPT (Jesli 0 wierszy = baza nigdy nie zmieniala roli przez Brokera.
+PROMPT  'Switchover' i 'Fast-Start Failover' = OK; 'Failover'/'Immediate Failover'
+PROMPT  wymagaja review w docs/FAILOVER-WALKTHROUGH.md.)
+
+-- 8.4: V$FS_LAG_HISTOGRAM — rozklad lag failover w czasie (SLA analysis, 26ai)
+COLUMN thread_no     FORMAT 9999     HEADING "Watek"
+COLUMN lag_typ       FORMAT A10      HEADING "Typ lag"
+COLUMN lag_bucket    FORMAT 99999    HEADING "Bucket s"
+COLUMN lag_cnt       FORMAT 99999999 HEADING "Liczba probek"
+COLUMN last_upd      FORMAT A20      HEADING "Ostatni update"
+
+PROMPT
+PROMPT 8.4 Failover lag histogram (v$fs_lag_histogram) - tylko aktywne buckety:
+SELECT
+    thread#          AS thread_no,
+    lag_type         AS lag_typ,
+    lag_time         AS lag_bucket,
+    lag_count        AS lag_cnt,
+    last_update_time AS last_upd
+FROM   v$fs_lag_histogram
+WHERE  lag_count > 0
+ORDER  BY thread#, lag_type, lag_time;
+
+PROMPT
+PROMPT (Brak wierszy = brak zarejestrowanych lag samples. Bucket LAG_TIME = upper bound
+PROMPT  w sekundach; LAG_COUNT = ile razy lag wpadl w ten bucket. Sprawdz docs/FSFO-GUIDE.md
+PROMPT  sekcja 9 dla interpretacji SLA.)
+
 PROMPT
 PROMPT ================================================================================
 PROMPT  Monitor report complete (26ai variant).
@@ -350,6 +508,9 @@ PROMPT  Alerty krytyczne (jesli wystapily):
 PROMPT    - Section 2: Observer Present = NO
 PROMPT    - Section 4: apply lag >= 30s
 PROMPT    - Section 7: ocena_tac = WARN (partial replay) lub *_capt > 0 a *_repl = 0
+PROMPT    - Section 8.1: FSFO Status = UNSYNCHRONIZED / TARGET OVER LAG LIMIT / STALLED
+PROMPT    - Section 8.1: Observer Present = NO (dubluje 2, ale z konfig perspective)
+PROMPT    - Section 8.3: ostatni Event = 'Failover'/'Immediate Failover' (review przyczyne)
 PROMPT
 PROMPT  Pelne zliczenie failed replays w 26ai - przez alert log:
 PROMPT    SELECT * FROM gv$diag_alert_ext

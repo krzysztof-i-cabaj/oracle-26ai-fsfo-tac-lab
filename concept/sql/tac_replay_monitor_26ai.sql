@@ -1,20 +1,39 @@
 -- ==============================================================================
 -- Tytul:        tac_replay_monitor_26ai.sql
--- Opis:         26ai-specific variant tac_replay_monitor.sql.
---               Patch sekcja 1: GV$REPLAY_STAT_SUMMARY usuniety w 23ai/26ai
+-- Opis:         26ai-specific variant tac_replay_monitor.sql (7 sekcji).
+--               Sekcja 1: GV$REPLAY_STAT_SUMMARY usuniety w 23ai/26ai
 --               -> agregacja per-instance z GV$REPLAY_CONTEXT (per-context view).
---               Sekcje 2-6 identyczne z oryginalem.
+--               Sekcja 7: ACCHK protection coverage (26ai / 19.11+) — mierzy %
+--               requestow chronionych przez TAC (DBA_ACCHK_* views).
 -- Description [EN]: 26ai-specific variant. Section 1 patched: GV$REPLAY_STAT_SUMMARY
 --                   removed in 23ai/26ai -> aggregation from GV$REPLAY_CONTEXT.
+--                   Section 7: ACCHK protection coverage (% protected via DBA_ACCHK_*).
 --
 -- Autor:        KCB Kris
 -- Data:         2026-04-27
--- Wersja:       1.0 (FIX-082, baza: oryginal tac_replay_monitor.sql v1.0)
+-- Wersja:       1.1
 --
--- Wymagania [PL]:    - Oracle 19c+ EE z dzialajacym TAC
---                    - Rola SELECT_CATALOG_ROLE
--- Requirements [EN]: - Oracle 19c+ EE with active TAC
---                    - SELECT_CATALOG_ROLE
+-- Zmiany v1.0 (2026-04-27, FIX-082):
+--   - Bazuje na oryginale tac_replay_monitor.sql v1.0.
+--   - Sekcja 1: zastapiono SELECT FROM gv$replay_stat_summary agregacja per-inst_id
+--     z gv$replay_context. Status logic: IDLE/PASS/WARN.
+--
+-- Zmiany v1.1 (2026-05-15):
+--   - Dodano SEKCJA 7: ACCHK protection coverage.
+--   - 7.0: preflight check (czy widoki ACCHK istnieja).
+--   - 7.1: overall protection summary (DBA_ACCHK_STATISTICS_SUMMARY).
+--   - 7.2: event types breakdown (DBA_ACCHK_EVENTS group by event_type/error_code).
+--   - 7.3: top problematic services/modules (DBA_ACCHK_EVENTS).
+--   - Wymagana procedura: EXEC dbms_app_cont_admin.acchk_views() (jednorazowo)
+--     + EXEC dbms_app_cont_admin.acchk_set(true, <sec>) przed pomiarem.
+--   - Patrz docs/TAC-GUIDE.md sekcja 9 (workflow ACCHK + 26ai-only TAC features).
+--
+-- Wymagania [PL]:    - Oracle 19c+ EE z dzialajacym TAC (sekcje 1-6)
+--                    - Sekcja 7: Oracle 19.11+ z utworzonymi widokami ACCHK
+--                    - Rola SELECT_CATALOG_ROLE (lub _ACCHK_READ_ dla sekcji 7)
+-- Requirements [EN]: - Oracle 19c+ EE with active TAC (sections 1-6)
+--                    - Section 7: Oracle 19.11+ with ACCHK views created
+--                    - SELECT_CATALOG_ROLE (or _ACCHK_READ_ for section 7)
 --
 -- Uzycie [PL]:       sqlconn.sh -s PRIM -f sql/tac_replay_monitor.sql -o reports/tac_$(date +%Y%m%d_%H%M).txt
 -- Usage [EN]:        sqlconn.sh -s PRIM -f sql/tac_replay_monitor.sql -o reports/tac_$(date +%Y%m%d_%H%M).txt
@@ -270,6 +289,118 @@ PROMPT
 PROMPT (Jesli brak wynikow / ORA-00942 = brak Diagnostic Pack licensing)
 
 -- ============================================================================
+-- SEKCJA 7: ACCHK — TAC Protection Coverage (26ai / 19.11+)
+-- Section 7: ACCHK — measures % of requests protected by TAC
+-- ============================================================================
+-- ACCHK (Application Continuity Check) jest narzedziem post-processing ktore
+-- mierzy % requestow chronionych przez TAC. Widoki DBA_ACCHK_* nie sa tworzone
+-- domyslnie — wymagaja jednorazowego:
+--   EXEC dbms_app_cont_admin.acchk_views();           -- tworzy widoki + role
+-- A pomiar:
+--   EXEC dbms_app_cont_admin.acchk_set(true, 3600);   -- on (timeout 1h)
+--   -- ...workload...
+--   EXEC dbms_app_cont_admin.acchk_set(false);        -- off
+--   EXEC dbms_app_cont_report.acchk_report();         -- raport
+-- Sekcja 7 dziala niezaleznie od pomiaru — czyta tylko historyczne dane.
+-- Preflight (7.0) wykrywa brak widokow i pokazuje instrukcje.
+-- Wartosci EVENT_TYPE: DISABLED, NEVER ENABLED, NOT ENABLING, REPLAY FAILED.
+
+PROMPT
+PROMPT --------------------------------------------------------------------------------
+PROMPT  SEKCJA 7 / SECTION 7: ACCHK protection coverage (26ai / 19.11+)
+PROMPT --------------------------------------------------------------------------------
+
+-- 7.0 Preflight: czy widoki ACCHK istnieja
+SET SERVEROUTPUT ON SIZE UNLIMITED
+DECLARE
+    v_exists NUMBER;
+BEGIN
+    SELECT COUNT(*)
+      INTO v_exists
+      FROM all_views
+     WHERE view_name = 'DBA_ACCHK_EVENTS';
+
+    IF v_exists = 0 THEN
+        DBMS_OUTPUT.PUT_LINE('========================================================================');
+        DBMS_OUTPUT.PUT_LINE(' INFO: Widoki ACCHK nie sa utworzone w tej bazie.');
+        DBMS_OUTPUT.PUT_LINE(' Aby wlaczyc pomiar protection coverage, uruchom jednorazowo:');
+        DBMS_OUTPUT.PUT_LINE('   EXEC dbms_app_cont_admin.acchk_views();');
+        DBMS_OUTPUT.PUT_LINE(' A nastepnie kazdy pomiar:');
+        DBMS_OUTPUT.PUT_LINE('   EXEC dbms_app_cont_admin.acchk_set(true, 3600);');
+        DBMS_OUTPUT.PUT_LINE('   -- wykonaj reprezentatywny workload --');
+        DBMS_OUTPUT.PUT_LINE('   EXEC dbms_app_cont_admin.acchk_set(false);');
+        DBMS_OUTPUT.PUT_LINE(' Patrz docs/TAC-GUIDE.md (sekcja 9.4) dla pelnego workflow.');
+        DBMS_OUTPUT.PUT_LINE(' Skipping sections 7.1-7.3.');
+        DBMS_OUTPUT.PUT_LINE('========================================================================');
+    ELSE
+        DBMS_OUTPUT.PUT_LINE('ACCHK views OK — wynik nizej (jesli puste = brak zebranych danych ACCHK).');
+    END IF;
+END;
+/
+SET SERVEROUTPUT OFF
+
+-- 7.1 Overall protection summary (DBA_ACCHK_STATISTICS_SUMMARY)
+-- Kolumny widoku zaleza od release update (19.11 wprowadza, kolejne RU dodaja pola).
+-- SELECT * daje pelny obraz niezaleznie od wersji.
+PROMPT
+PROMPT 7.1 Overall protection summary (dba_acchk_statistics_summary):
+SELECT * FROM dba_acchk_statistics_summary;
+
+-- 7.2 Event types breakdown
+COLUMN event_type    FORMAT A18 HEADING "Event type"
+COLUMN error_code    FORMAT 99999 HEADING "ORA"
+COLUMN liczba_evt    FORMAT 999999 HEADING "Liczba"
+COLUMN ocena_evt     FORMAT A6 HEADING "Ocena"
+
+PROMPT
+PROMPT 7.2 Event types breakdown (dba_acchk_events):
+SELECT
+    event_type,
+    error_code,
+    COUNT(*) AS liczba_evt,
+    CASE
+        WHEN event_type = 'REPLAY FAILED'  THEN 'CRIT'
+        WHEN event_type = 'NEVER ENABLED'  THEN 'WARN'
+        WHEN event_type = 'NOT ENABLING'   THEN 'WARN'
+        WHEN event_type = 'DISABLED'       THEN 'INFO'
+        ELSE 'INFO'
+    END AS ocena_evt
+FROM   dba_acchk_events
+GROUP  BY event_type, error_code
+ORDER  BY liczba_evt DESC
+FETCH  FIRST 20 ROWS ONLY;
+
+PROMPT
+PROMPT (Brak wierszy = brak zebranych eventow ACCHK. EVENT_TYPE rozszyfrowanie:
+PROMPT   DISABLED      = AC swiadomie wylaczone w sesji (nie problem per se)
+PROMPT   NEVER ENABLED = sesja nie miala AC od poczatku (sprawdz service config)
+PROMPT   NOT ENABLING  = AC nie moglo sie wlaczyc (warunki srodowiskowe)
+PROMPT   REPLAY FAILED = byla proba replay ale sie nie udala (krytyczne).)
+
+-- 7.3 Top problematic services/modules
+COLUMN service_acchk  FORMAT A22 HEADING "Service"
+COLUMN module_acchk   FORMAT A30 HEADING "Modul"
+COLUMN event_t_acchk  FORMAT A16 HEADING "Event type"
+
+PROMPT
+PROMPT 7.3 Top problematic services/modules (dba_acchk_events, ostatnie 7 dni):
+SELECT
+    service_name AS service_acchk,
+    module       AS module_acchk,
+    event_type   AS event_t_acchk,
+    COUNT(*)     AS liczba_evt
+FROM   dba_acchk_events
+WHERE  event_type IN ('DISABLED','NEVER ENABLED','NOT ENABLING','REPLAY FAILED')
+  AND  timestamp > SYSTIMESTAMP - INTERVAL '7' DAY
+GROUP  BY service_name, module, event_type
+ORDER  BY liczba_evt DESC
+FETCH  FIRST 15 ROWS ONLY;
+
+PROMPT
+PROMPT (Top modules z 'NEVER ENABLED' = obszary aplikacji ktore wcale nie korzystaja
+PROMPT  z TAC. Skoreluj z TAC-GUIDE.md sekcja 4 — service configuration check.)
+
+-- ============================================================================
 -- Podsumowanie / Summary
 -- ============================================================================
 
@@ -289,4 +420,9 @@ PROMPT
 PROMPT    Section 5 (non-replayable SQL):
 PROMPT      0 rows    = app code zgodny z TAC best practices
 PROMPT      > 0 rows  = zglos app teamowi refactoring
+PROMPT
+PROMPT    Section 7 (ACCHK protection coverage, 26ai / 19.11+):
+PROMPT      7.1 protected % >= 95 = TAC pokrywa wiekszosc ruchu
+PROMPT      7.2 REPLAY FAILED > 0 = krytyczne — przejrzyj error_code
+PROMPT      7.3 NEVER ENABLED top = service config nie wlacza TAC dla tych modulow
 PROMPT ================================================================================
